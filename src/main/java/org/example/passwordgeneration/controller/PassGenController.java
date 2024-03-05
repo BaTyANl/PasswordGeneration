@@ -16,8 +16,8 @@ public class PassGenController {
 
     @GetMapping("/create")
     public String createPass(@RequestParam("length") int length,
-            @RequestParam("exclude_numbers") boolean exclude_numbers,
-            @RequestParam("exclude_special_chars") boolean exclude_special_chars) {
-        return service.createPass(length, exclude_numbers, exclude_special_chars);
+            @RequestParam("excludeNumbers") boolean excludeNumbers,
+            @RequestParam("excludeSpecialChars") boolean excludeSpecialChars) {
+        return service.createPass(length, excludeNumbers, excludeSpecialChars);
     }
 }

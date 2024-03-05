@@ -1,5 +1,5 @@
 package org.example.passwordgeneration.service;
 
 public interface PassService {
-    String createPass(int length, boolean exclude_numbers, boolean exclude_special_chars);
+    String createPass(int length, boolean excludeNumbers, boolean excludeSpecialChars);
 }

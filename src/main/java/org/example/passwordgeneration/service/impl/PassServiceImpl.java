@@ -11,9 +11,9 @@ import org.springframework.web.client.RestTemplate;
 public class PassServiceImpl implements PassService {
     private final RestTemplate restTemplate;
     @Override
-    public String createPass(int length, boolean exclude_numbers, boolean exclude_special_chars) {
+    public String createPass(int length, boolean excludeNumbers, boolean excludeSpecialChars) {
         String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length +
-                "&exclude_numbers=" + exclude_numbers + "&exclude_special_chars=" + exclude_special_chars +
+                "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars +
                 "&X-Api-Key=YzshKnOgHb7dJFpZryvidg==OHVoTBkcQJWBnRqB";
         return restTemplate.getForObject(url, String.class);
     }
