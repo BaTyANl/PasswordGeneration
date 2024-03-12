@@ -1,6 +1,5 @@
 package org.example.passwordgeneration.service.impl;
 
-
 import lombok.AllArgsConstructor;
 import org.example.passwordgeneration.service.PassService;
 import org.springframework.stereotype.Service;
@@ -11,10 +10,11 @@ import org.springframework.web.client.RestTemplate;
 public class PassServiceImpl implements PassService {
     private final RestTemplate restTemplate;
     @Override
-    public String createPass(int length, boolean excludeNumbers, boolean excludeSpecialChars) {
-        String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length +
-                "&excludeNumbers=" + excludeNumbers + "&excludeSpecialChars=" + excludeSpecialChars +
-                "&X-Api-Key=YzshKnOgHb7dJFpZryvidg==OHVoTBkcQJWBnRqB";
+    public String createPass(int length, boolean includeUpper, boolean includeLower,
+                             boolean includeSpecial, boolean includeNum) {
+        String url = "https://api.genratr.com/?length=" + length +
+                "&uppercase=" + includeUpper + "&lowercase=" + includeLower +
+                "&special=" + includeSpecial + "&numbers=" + includeNum;
         return restTemplate.getForObject(url, String.class);
     }
 }

@@ -1,6 +1,5 @@
 package org.example.passwordgeneration.controller;
 
-
 import lombok.AllArgsConstructor;
 import org.example.passwordgeneration.service.PassService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class PassGenController {
     private final PassService service;
-
     @GetMapping("/create")
     public String createPass(@RequestParam("length") int length,
-            @RequestParam("excludeNumbers") boolean excludeNumbers,
-            @RequestParam("excludeSpecialChars") boolean excludeSpecialChars) {
-        return service.createPass(length, excludeNumbers, excludeSpecialChars);
+            @RequestParam("includeUpper") boolean includeUpper,
+            @RequestParam("includeLower") boolean includeLower,
+            @RequestParam("includeSpecial") boolean includeSpecial,
+            @RequestParam("includeNum") boolean includeNum) {
+        return service.createPass(length, includeUpper, includeLower,
+                includeSpecial, includeNum);
     }
 }

@@ -1,11 +1,12 @@
 package org.example.passwordgeneration.model;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
-@Builder
 public class PasswordData {
     private int length;
-    private boolean excludeNumbers;
-    private boolean excludeSpecialChars;
+    private boolean includeUpper;
+    private boolean includeLower;
+    private boolean includeSpecial;
+    private boolean includeNum;
 }
