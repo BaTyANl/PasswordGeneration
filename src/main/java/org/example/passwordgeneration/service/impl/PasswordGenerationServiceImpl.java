@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.example.passwordgeneration.DTO.PasswordResponse;
+import org.example.passwordgeneration.dto.PasswordResponse;
 import org.example.passwordgeneration.service.PasswordGenerationService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,13 +19,9 @@ public class PasswordGenerationServiceImpl implements PasswordGenerationService 
     public PasswordResponse createPass(int length, boolean excludeNumbers,
                                        boolean excludeSpecialChars) {
         Properties properties = new Properties();
-        String apiKey;
-        try(FileInputStream fileInputStream = new FileInputStream("application.properties")){
-            properties.load(fileInputStream);
-            apiKey = properties.getProperty("apiKey");
-        } catch (Exception e){
-            throw new Exception("Error happened", e);
-        }
+        FileInputStream fileInputStream = new FileInputStream("apiKey.properties");
+        properties.load(fileInputStream);
+        String apiKey = properties.getProperty("apiKey");
         String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length +
                 "&excludeNumbers=" + excludeNumbers + "&excludeSpecialChars=" + excludeSpecialChars +
                 "&X-Api-Key=" + apiKey;

@@ -1,7 +1,7 @@
 package org.example.passwordgeneration.controller;
 
 import lombok.AllArgsConstructor;
-import org.example.passwordgeneration.DTO.PasswordResponse;
+import org.example.passwordgeneration.dto.PasswordResponse;
 import org.example.passwordgeneration.service.PasswordGenerationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
