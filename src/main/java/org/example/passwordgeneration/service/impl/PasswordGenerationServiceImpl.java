@@ -8,6 +8,7 @@ import org.example.passwordgeneration.dto.PasswordResponse;
 import org.example.passwordgeneration.service.PasswordGenerationService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.io.FileInputStream;
 import java.util.Properties;
 @Service
@@ -19,7 +20,7 @@ public class PasswordGenerationServiceImpl implements PasswordGenerationService 
     public PasswordResponse createPass(int length, boolean excludeNumbers,
                                        boolean excludeSpecialChars) {
         Properties properties = new Properties();
-        FileInputStream fileInputStream = new FileInputStream("./application.properties");
+        FileInputStream fileInputStream = new FileInputStream("D:\\Java\\PasswordGeneration\\src\\main\\resources\\application.properties");
         properties.load(fileInputStream);
         String apiKey = properties.getProperty("apiKey");
         String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length +
