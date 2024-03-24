@@ -5,15 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.passwordgeneration.dto.PasswordResponse;
-import org.example.passwordgeneration.service.PasswordGenerationService;
+import org.example.passwordgeneration.service.PasswordService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.io.FileInputStream;
 import java.util.Properties;
+
 @Service
 @AllArgsConstructor
-public class PasswordGenerationServiceImpl implements PasswordGenerationService {
+public class PasswordServiceImpl implements PasswordService {
     private final RestTemplate restTemplate;
     @Override
     @SneakyThrows
