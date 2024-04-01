@@ -26,9 +26,9 @@ public class WebsiteController {
         public ResponseEntity<Website> getWebsiteById(@PathVariable Long id){
         Website website = websiteService.getWebsiteById(id);
         if(website==null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(website, HttpStatus.OK);
+            return ResponseEntity.ok(website);
         }
     }
 
@@ -41,9 +41,9 @@ public class WebsiteController {
     public ResponseEntity<Website> updateWebsite(@PathVariable Long id, @RequestBody WebsiteRequest websiteRequest){
         Website website = websiteService.updateWebsite(id, websiteRequest);
         if (website == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(website, HttpStatus.OK);
+            return ResponseEntity.ok(website);
         }
     }
     @DeleteMapping("/delete/{id}")

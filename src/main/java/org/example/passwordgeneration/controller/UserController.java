@@ -24,9 +24,9 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         User user = userService.getUserById(id);
         if(user==null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return ResponseEntity.ok(user);
         }
     }
 
@@ -39,9 +39,9 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
         User user = userService.updateUser(id, userRequest);
         if (user == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return ResponseEntity.ok(user);
         }
     }
 

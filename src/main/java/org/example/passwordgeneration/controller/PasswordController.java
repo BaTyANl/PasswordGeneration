@@ -23,9 +23,9 @@ public class PasswordController {
     public ResponseEntity<Password> getPasswordById(@PathVariable Long id){
         Password password = service.getPasswordById(id);
         if(password==null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(password, HttpStatus.OK);
+            return ResponseEntity.ok(password);
         }
     }
     @PostMapping("/create")
@@ -38,9 +38,9 @@ public class PasswordController {
     public ResponseEntity<Password> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
         Password password = service.updatePassword(id, passwordRequest);
         if (password == null){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return new ResponseEntity<>(password, HttpStatus.OK);
+            return ResponseEntity.ok(password);
         }
     }
     @DeleteMapping("/delete/{id}")
