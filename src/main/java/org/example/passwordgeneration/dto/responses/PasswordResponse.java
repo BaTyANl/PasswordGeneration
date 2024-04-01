@@ -1,4 +1,4 @@
-package org.example.passwordgeneration.dto.Responses;
+package org.example.passwordgeneration.dto.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

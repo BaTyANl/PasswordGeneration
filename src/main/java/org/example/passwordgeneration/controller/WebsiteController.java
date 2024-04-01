@@ -1,7 +1,7 @@
 package org.example.passwordgeneration.controller;
 
 import lombok.AllArgsConstructor;
-import org.example.passwordgeneration.dto.Requests.WebsiteRequest;
+import org.example.passwordgeneration.dto.requests.WebsiteRequest;
 import org.example.passwordgeneration.model.Website;
 import org.example.passwordgeneration.service.WebsiteService;
 import org.springframework.http.HttpStatus;

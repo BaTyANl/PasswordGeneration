@@ -1,6 +1,6 @@
 package org.example.passwordgeneration.service;
 
-import org.example.passwordgeneration.dto.Requests.WebsiteRequest;
+import org.example.passwordgeneration.dto.requests.WebsiteRequest;
 import org.example.passwordgeneration.model.Website;
 
 import java.util.List;

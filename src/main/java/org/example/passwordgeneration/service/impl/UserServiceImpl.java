@@ -1,7 +1,7 @@
 package org.example.passwordgeneration.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.example.passwordgeneration.dto.Requests.UserRequest;
+import org.example.passwordgeneration.dto.requests.UserRequest;
 import org.example.passwordgeneration.model.User;
 import org.example.passwordgeneration.repository.UserRepository;
 import org.example.passwordgeneration.service.UserService;

@@ -1,4 +1,4 @@
-package org.example.passwordgeneration.dto.Requests;
+package org.example.passwordgeneration.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class UserRequest {
-    String username;
+public class WebsiteRequest {
+    String websiteName;
 }
