@@ -3,8 +3,6 @@ package com.example.passwordgeneration.service;
 import com.example.passwordgeneration.dto.request.UserRequest;
 import com.example.passwordgeneration.dto.request.WebsiteRequest;
 import com.example.passwordgeneration.dto.response.WebsiteResponse;
-import com.example.passwordgeneration.model.Website;
-import com.example.passwordgeneration.repository.WebsiteRepository;
 
 import java.util.List;
 
