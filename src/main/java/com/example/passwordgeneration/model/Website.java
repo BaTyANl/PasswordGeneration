@@ -19,7 +19,11 @@ public class Website {
     private Long id;
 
     private String websiteName;
-    @ManyToMany(mappedBy = "website")
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "website_user",
+            joinColumns = @JoinColumn(name = "website_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new HashSet<>();
     public Website(String websiteName, Set<User> users){
         this.websiteName = websiteName;

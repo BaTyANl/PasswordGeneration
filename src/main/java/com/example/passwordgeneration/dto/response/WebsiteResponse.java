@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
+
 @Setter
 @Getter
 @AllArgsConstructor
 public class WebsiteResponse {
+    private Long id;
     private String websiteName;
-    private List<String> users;
+    private Set<String> users;
 }

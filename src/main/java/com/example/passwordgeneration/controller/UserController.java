@@ -18,33 +18,36 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/all")
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
     @GetMapping("/id/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
-        User user = userService.getUserById(id);
-        if(user==null){
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id){
+        UserResponse userResponse = userService.getUserById(id);
+        if(userResponse==null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userResponse);
         }
     }
 
     @PostMapping("/create")
     public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
-        User user = userService.createUser(userRequest);
-        UserResponse userResponse = new UserResponse(user.getUsername(), user.getPassword().getRandomPassword());
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        UserResponse userResponse = userService.createUser(userRequest);
+        if(userResponse!=null){
+            return ResponseEntity.ok(userResponse);
+        }else{
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
-        User user = userService.updateUser(id, userRequest);
-        if (user == null){
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
+        UserResponse userResponse = userService.updateUser(id, userRequest);
+        if (userResponse == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userResponse);
         }
     }
 

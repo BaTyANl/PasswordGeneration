@@ -2,6 +2,7 @@ package com.example.passwordgeneration.service.impl;
 
 import com.example.passwordgeneration.dto.request.UserRequest;
 import com.example.passwordgeneration.dto.response.PasswordResponse;
+import com.example.passwordgeneration.dto.response.UserResponse;
 import com.example.passwordgeneration.model.Password;
 import com.example.passwordgeneration.model.User;
 import com.example.passwordgeneration.model.Website;
@@ -27,29 +28,38 @@ public class UserServiceImpl implements UserService {
     private final WebsiteRepository websiteRepository;
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserResponse(user.getId(), user.getUsername(),
+                        user.getPassword().getRandomPassword())).toList();
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User wasn't found"));
+    public UserResponse getUserById(Long id) {
+        Optional<User> existUser = userRepository.findById(id);
+        return existUser.map(user -> new UserResponse(user.getId(),user.getUsername(),
+                user.getPassword().getRandomPassword())).orElse(null);
     }
 
     @Override
-    public User createUser(UserRequest userRequest) {
+    public UserResponse createUser(UserRequest userRequest) {
+        User existUser = userRepository.findByUsername(userRequest.getUsername());
+        if(existUser != null){
+            return null;
+        }
         PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars());
         Password password = passwordRepository.findByRandomPassword(passwordResponse.getRandomPassword());
         if(password == null) {
             password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
             passwordRepository.save(password);
         }
-        User user = new User(userRequest.getUsername(), password);
-        return userRepository.save(user);
+        existUser = new User(userRequest.getUsername(), password);
+        userRepository.save(existUser);
+        return new UserResponse(existUser.getId(), userRequest.getUsername(), password.getRandomPassword());
     }
 
     @Override
-    public User updateUser(@PathVariable Long id, UserRequest userRequest) {
+    public UserResponse updateUser(@PathVariable Long id, UserRequest userRequest) {
         Optional<User> existUser = userRepository.findById(id);
         if (existUser.isEmpty()) {
             return null;
@@ -60,9 +70,11 @@ public class UserServiceImpl implements UserService {
             password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
             passwordRepository.save(password);
         }
-        User user = new User(userRequest.getUsername(), password);
-        user.setId(id);
-        return userRepository.save(user);
+        existUser.get().setUsername(userRequest.getUsername());
+        existUser.get().setPassword(password);
+        existUser.get().setId(id);
+        userRepository.save(existUser.get());
+        return new UserResponse(existUser.get().getId(),userRequest.getUsername(), password.getRandomPassword());
     }
 
     @Override

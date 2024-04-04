@@ -34,20 +34,21 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     public List<WebsiteResponse> getAllWebsites() {
         List<Website> websites = websiteRepository.findAll();
-        return websites.stream().map(website -> new WebsiteResponse(website.getWebsiteName(),
-                website.getUsers().stream().map(User::getUsername).collect(Collectors.toList()))).toList();
+        return websites.stream().map(website -> new WebsiteResponse(website.getId(),website.getWebsiteName(),
+                website.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()))).toList();
     }
 
     @Override
     public WebsiteResponse getWebsiteById(Long id) {
         Optional<Website> existWebsite = websiteRepository.findById(id);
-        return existWebsite.map(website -> new WebsiteResponse(website.getWebsiteName(),
-                website.getUsers().stream().map(User::getUsername).collect(Collectors.toList()))).orElse(null);
+        return existWebsite.map(website -> new WebsiteResponse(website.getId(), website.getWebsiteName(),
+                website.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()))).orElse(null);
     }
 
     @Override
     public WebsiteResponse createWebsite(WebsiteRequest websiteRequest) {
         Set<User> users = new HashSet<>();
+        Website website = new Website(websiteRequest.getWebsiteName(), users);
         for(UserRequest user:websiteRequest.getUsers()){
             User existUser = userRepository.findByUsername(user.getUsername());
             if(existUser == null){
@@ -60,14 +61,15 @@ public class WebsiteServiceImpl implements WebsiteService {
                     passwordRepository.save(password);
                 }
                 existUser = new User(user.getUsername(), password);
+                userRepository.save(existUser);
             }
             users.add(existUser);
         }
-        Website website = new Website(websiteRequest.getWebsiteName(), users);
+        website.setUsers(users);
         websiteRepository.save(website);
-        return new WebsiteResponse(website.getWebsiteName(), website.getUsers().stream()
+        return new WebsiteResponse(website.getId(),website.getWebsiteName(), website.getUsers().stream()
                 .map(User::getUsername)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
     }
 
     @Override
@@ -91,9 +93,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
         existWebsite.get().getUsers().add(user);
         websiteRepository.save(existWebsite.get());
-        return new WebsiteResponse(existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
+        return new WebsiteResponse(existWebsite.get().getId(),existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
                 .map(User::getUsername)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
     }
 
     @Override
@@ -108,9 +110,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
         existWebsite.get().getUsers().remove(user);
         websiteRepository.save(existWebsite.get());
-        return new WebsiteResponse(existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
+        return new WebsiteResponse(existWebsite.get().getId(),existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
                 .map(User::getUsername)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
     }
 
     @Override

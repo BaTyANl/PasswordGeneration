@@ -8,5 +8,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class PasswordResponse {
+    private Long id;
     private String randomPassword;
 }

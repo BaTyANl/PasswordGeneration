@@ -1,6 +1,7 @@
 package com.example.passwordgeneration.controller;
 
 import com.example.passwordgeneration.dto.request.PasswordRequest;
+import com.example.passwordgeneration.dto.response.PasswordResponse;
 import com.example.passwordgeneration.model.Password;
 import com.example.passwordgeneration.service.PasswordService;
 import lombok.AllArgsConstructor;
@@ -16,31 +17,31 @@ import java.util.List;
 public class PasswordController {
     private final PasswordService service;
     @GetMapping("/all")
-    public List<Password> getAllPasswords(){
+    public List<PasswordResponse> getAllPasswords(){
         return service.getAllPasswords();
     }
     @GetMapping("/id/{id}")
-    public ResponseEntity<Password> getPasswordById(@PathVariable Long id){
-        Password password = service.getPasswordById(id);
-        if(password==null){
+    public ResponseEntity<PasswordResponse> getPasswordById(@PathVariable Long id){
+        PasswordResponse passwordResponse = service.getPasswordById(id);
+        if(passwordResponse==null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return ResponseEntity.ok(password);
+            return ResponseEntity.ok(passwordResponse);
         }
     }
     @PostMapping("/create")
-    public ResponseEntity<Password> createPass(@RequestParam("length") int length,
+    public ResponseEntity<PasswordResponse> createPass(@RequestParam("length") int length,
                                                @RequestParam("excludeNumbers") boolean excludeNumbers,
                                                @RequestParam("excludeSpecialChars") boolean excludeSpecialChars) {
         return new ResponseEntity<>(service.createPass(length, excludeNumbers, excludeSpecialChars), HttpStatus.OK);
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<Password> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
-        Password password = service.updatePassword(id, passwordRequest);
-        if (password == null){
+    public ResponseEntity<PasswordResponse> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
+        PasswordResponse passwordResponse = service.updatePassword(id, passwordRequest);
+        if (passwordResponse == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }else{
-            return ResponseEntity.ok(password);
+            return ResponseEntity.ok(passwordResponse);
         }
     }
     @DeleteMapping("/delete/{id}")
