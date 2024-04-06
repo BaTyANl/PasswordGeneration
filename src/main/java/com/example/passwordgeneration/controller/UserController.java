@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
-    private final static String USER_NOT_FOUND = "User wasn't found";
+    private static final String USER_NOT_FOUND = "User wasn't found";
     private final UserService userService;
 
     @GetMapping("/all")

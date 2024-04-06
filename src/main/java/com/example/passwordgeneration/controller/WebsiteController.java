@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/v1/website")
 public class WebsiteController {
-    private final static String WEBSITE_NOT_FOUND = "Website wasn't found";
+    private static final String WEBSITE_NOT_FOUND = "Website wasn't found";
     private final WebsiteService websiteService;
 
     @GetMapping("/all")

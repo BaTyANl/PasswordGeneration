@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/password")
 @AllArgsConstructor
 public class PasswordController {
-    private final static String PASSWORD_NOT_FOUND = "Password wasn't found";
+    private static final String PASSWORD_NOT_FOUND = "Password wasn't found";
     private final PasswordService service;
     @GetMapping("/all")
     public List<PasswordResponse> getAllPasswords(){
