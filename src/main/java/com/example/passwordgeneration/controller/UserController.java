@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
+    private final static String USER_NOT_FOUND = "User wasn't found";
     private final UserService userService;
 
     @GetMapping("/all")
@@ -24,7 +25,7 @@ public class UserController {
     public ResponseEntity<Object> getUserById(@PathVariable Long id){
         UserResponse userResponse = userService.getUserById(id);
         if(userResponse==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User wasn't found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
         }else{
             return ResponseEntity.ok(userResponse);
         }
@@ -36,7 +37,7 @@ public class UserController {
         if(userResponse!=null){
             return ResponseEntity.ok(userResponse);
         }else{
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User wasn't found");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(USER_NOT_FOUND);
         }
     }
 
@@ -44,7 +45,7 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
         UserResponse userResponse = userService.updateUser(id, userRequest);
         if (userResponse == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User wasn't found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
         }else{
             return ResponseEntity.ok(userResponse);
         }

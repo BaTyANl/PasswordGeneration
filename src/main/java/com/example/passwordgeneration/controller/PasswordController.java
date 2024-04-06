@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/password")
 @AllArgsConstructor
 public class PasswordController {
+    private final static String PASSWORD_NOT_FOUND = "Password wasn't found";
     private final PasswordService service;
     @GetMapping("/all")
     public List<PasswordResponse> getAllPasswords(){
@@ -23,7 +24,7 @@ public class PasswordController {
     public ResponseEntity<Object> getPasswordById(@PathVariable Long id){
         PasswordResponse passwordResponse = service.getPasswordById(id);
         if(passwordResponse==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password wasn't found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PASSWORD_NOT_FOUND);
         }else{
             return ResponseEntity.ok(passwordResponse);
         }
@@ -38,7 +39,7 @@ public class PasswordController {
     public ResponseEntity<Object> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
         PasswordResponse passwordResponse = service.updatePassword(id, passwordRequest);
         if (passwordResponse == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password wasn't found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PASSWORD_NOT_FOUND);
         }else{
             return ResponseEntity.ok(passwordResponse);
         }

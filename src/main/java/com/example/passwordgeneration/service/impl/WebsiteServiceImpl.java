@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class WebsiteServiceImpl implements WebsiteService {
-
     private final WebsiteRepository websiteRepository;
     private final UserRepository userRepository;
     private final PasswordService passwordService;

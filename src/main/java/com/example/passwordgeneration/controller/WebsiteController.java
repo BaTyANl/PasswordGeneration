@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/api/v1/website")
 public class WebsiteController {
+    private final static String WEBSITE_NOT_FOUND = "Website wasn't found";
     private final WebsiteService websiteService;
 
     @GetMapping("/all")
@@ -27,7 +28,7 @@ public class WebsiteController {
     public ResponseEntity<Object> getWebsiteById(@PathVariable Long id){
         WebsiteResponse websiteResponse = websiteService.getWebsiteById(id);
         if(websiteResponse==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Website wasn't found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(WEBSITE_NOT_FOUND);
         }else{
             return ResponseEntity.ok(websiteResponse);
         }
@@ -39,7 +40,7 @@ public class WebsiteController {
         if(websiteResponse!=null){
             return ResponseEntity.ok(websiteResponse);
         }else{
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Website wasn't found");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(WEBSITE_NOT_FOUND);
         }
     }
 
@@ -49,7 +50,7 @@ public class WebsiteController {
         if(websiteResponse != null) {
             return ResponseEntity.ok(websiteResponse);
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Website wasn't found");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(WEBSITE_NOT_FOUND);
         }
     }
 
