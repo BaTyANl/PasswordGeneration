@@ -40,9 +40,12 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public WebsiteResponse getWebsiteById(Long id) {
-        Optional<Website> existWebsite = websiteRepository.findById(id);
-        return existWebsite.map(website -> new WebsiteResponse(website.getId(), website.getWebsiteName(),
-                website.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()))).orElse(null);
+        Website existWebsite = websiteRepository.findById(id).orElse(null);
+        if (existWebsite == null){
+            return null;
+        }
+        return new WebsiteResponse(id, existWebsite.getWebsiteName(),
+                                   existWebsite.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()));
     }
 
     @Override
@@ -74,8 +77,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public WebsiteResponse addUser(Long id, UserRequest userRequest) {
-        Optional<Website> existWebsite = websiteRepository.findById(id);
-        if(existWebsite.isEmpty()){
+        Website existWebsite = websiteRepository.findById(id).orElse(null);
+        if(existWebsite == null){
             return null;
         }
         User user = userRepository.findByUsername(userRequest.getUsername());
@@ -83,45 +86,49 @@ public class WebsiteServiceImpl implements WebsiteService {
             PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(),
                     userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars());
             Password password = passwordRepository.findByRandomPassword(passwordResponse.getRandomPassword());
+
             if(password == null) {
                 password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(),
                         userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
                 passwordRepository.save(password);
             }
+
             user = new User(userRequest.getUsername(), password);
             userRepository.save(user);
         }
-        existWebsite.get().getUsers().add(user);
-        websiteRepository.save(existWebsite.get());
-        return new WebsiteResponse(existWebsite.get().getId(),existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
+
+        existWebsite.getUsers().add(user);
+        websiteRepository.save(existWebsite);
+        return new WebsiteResponse(existWebsite.getId(),existWebsite.getWebsiteName(), existWebsite.getUsers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet()));
     }
 
     @Override
     public WebsiteResponse removeUser(Long id, String username) {
-        Optional<Website> existWebsite = websiteRepository.findById(id);
-        if(existWebsite.isEmpty()){
-            return  null;
-        }
-        User user = userRepository.findByUsername(username);
-        if(user == null){
+        Website existWebsite = websiteRepository.findById(id).orElse(null);
+        if(existWebsite == null){
             return null;
         }
-        existWebsite.get().getUsers().remove(user);
-        websiteRepository.save(existWebsite.get());
-        return new WebsiteResponse(existWebsite.get().getId(),existWebsite.get().getWebsiteName(), existWebsite.get().getUsers().stream()
+        User existUser = existWebsite.getUsers().stream().
+                filter(user -> user.getUsername().equals(username)).findFirst().orElse(null); // sql query
+        if(existUser == null){
+            return null;
+        }
+        existWebsite.getUsers().remove(existUser);
+        websiteRepository.save(existWebsite);
+        return new WebsiteResponse(existWebsite.getId(),existWebsite.getWebsiteName(), existWebsite.getUsers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet()));
     }
 
     @Override
     public boolean deleteWebsite(Long id) {
-        Optional<Website> existWebsite = websiteRepository.findById(id);
-        if(existWebsite.isEmpty()){
+        Website existWebsite = websiteRepository.findById(id).orElse(null);
+        if(existWebsite == null){
             return false;
         }
-        websiteRepository.delete(existWebsite.get());
+        websiteRepository.delete(existWebsite);
         return true;
     }
 }

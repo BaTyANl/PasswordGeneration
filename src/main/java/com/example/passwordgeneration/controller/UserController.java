@@ -21,30 +21,30 @@ public class UserController {
         return userService.getAllUsers();
     }
     @GetMapping("/id/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id){
+    public ResponseEntity<Object> getUserById(@PathVariable Long id){
         UserResponse userResponse = userService.getUserById(id);
         if(userResponse==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User wasn't found");
         }else{
             return ResponseEntity.ok(userResponse);
         }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest) {
         UserResponse userResponse = userService.createUser(userRequest);
         if(userResponse!=null){
             return ResponseEntity.ok(userResponse);
         }else{
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User wasn't found");
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
+    public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest){
         UserResponse userResponse = userService.updateUser(id, userRequest);
         if (userResponse == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User wasn't found");
         }else{
             return ResponseEntity.ok(userResponse);
         }

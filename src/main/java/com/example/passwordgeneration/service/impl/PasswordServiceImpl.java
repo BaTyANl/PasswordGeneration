@@ -34,9 +34,12 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public PasswordResponse getPasswordById(Long id) {
-        Optional<Password> existPassword = repository.findById(id);
-        return existPassword.map(password -> new PasswordResponse(password.getId(),
-                password.getRandomPassword())).orElse(null);
+        Password existPassword = repository.findById(id).orElse(null);
+        if (existPassword == null){
+            return null;
+        }
+        return new PasswordResponse(id, existPassword.getRandomPassword());
+
     }
     @SneakyThrows
     @Override
@@ -69,33 +72,33 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public PasswordResponse updatePassword(@PathVariable Long id, PasswordRequest passwordRequest) {
-        Optional<Password> existPassword = repository.findById(id);
-        if (existPassword.isEmpty()) {
+        Password existPassword = repository.findById(id).orElse(null);
+        if (existPassword == null) {
             return null;
         }
-        existPassword.get().setLength(passwordRequest.getLength());
-        existPassword.get().setExcludeNumbers(passwordRequest.isExcludeNumbers());
-        existPassword.get().setExcludeSpecialChars(passwordRequest.isExcludeSpecialChars());
-        existPassword.get().setRandomPassword(generatePass(
+        existPassword.setLength(passwordRequest.getLength());
+        existPassword.setExcludeNumbers(passwordRequest.isExcludeNumbers());
+        existPassword.setExcludeSpecialChars(passwordRequest.isExcludeSpecialChars());
+        existPassword.setRandomPassword(generatePass(
                 passwordRequest.getLength(), passwordRequest.isExcludeNumbers(),
                 passwordRequest.isExcludeSpecialChars()).getRandomPassword());
-        existPassword.get().setId(id);
-        repository.save(existPassword.get());
-        return new PasswordResponse(id,existPassword.get().getRandomPassword());
+
+        repository.save(existPassword);
+        return new PasswordResponse(id,existPassword.getRandomPassword());
     }
     @Override
     public boolean deletePassword(Long id) {
-        Optional<Password> existPassword = repository.findById(id);
-        if(existPassword.isEmpty()){
+        Password existPassword = repository.findById(id).orElse(null);
+        if(existPassword == null){
             return false;
         }
         List<User> users = userRepository.findAll();
         for(User user : users){
-            if(user.getPassword() != null && user.getPassword().equals(existPassword.get())){
+            if(user.getPassword() != null && user.getPassword().equals(existPassword)){
                 user.setPassword(null);
             }
         }
-        repository.delete(existPassword.get());
+        repository.delete(existPassword);
         return true;
     }
 }

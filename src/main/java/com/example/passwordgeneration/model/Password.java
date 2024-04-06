@@ -24,7 +24,7 @@ public class Password {
 
     private String randomPassword;
 
-    @OneToMany(mappedBy = "password")
+    @OneToMany(mappedBy = "password", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<User> users = new HashSet<>();
     public Password(int length, boolean excludeNumbers, boolean excludeSpecialChars, String randomPassword) {
         this.length = length;

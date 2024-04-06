@@ -20,10 +20,10 @@ public class PasswordController {
         return service.getAllPasswords();
     }
     @GetMapping("/id/{id}")
-    public ResponseEntity<PasswordResponse> getPasswordById(@PathVariable Long id){
+    public ResponseEntity<Object> getPasswordById(@PathVariable Long id){
         PasswordResponse passwordResponse = service.getPasswordById(id);
         if(passwordResponse==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password wasn't found");
         }else{
             return ResponseEntity.ok(passwordResponse);
         }
@@ -35,10 +35,10 @@ public class PasswordController {
         return new ResponseEntity<>(service.createPass(length, excludeNumbers, excludeSpecialChars), HttpStatus.OK);
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<PasswordResponse> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
+    public ResponseEntity<Object> updatePassword(@PathVariable Long id, @RequestBody PasswordRequest passwordRequest){
         PasswordResponse passwordResponse = service.updatePassword(id, passwordRequest);
         if (passwordResponse == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password wasn't found");
         }else{
             return ResponseEntity.ok(passwordResponse);
         }

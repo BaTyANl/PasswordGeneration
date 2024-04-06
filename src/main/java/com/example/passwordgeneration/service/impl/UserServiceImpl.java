@@ -30,15 +30,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserResponse(user.getId(), user.getUsername(),
-                        user.getPassword().getRandomPassword())).toList();
+                   .map(user -> new UserResponse(user.getId(),
+                        user.getUsername(),
+                        user.getPassword() != null ? user.getPassword().getRandomPassword(): "no password")).toList();
     }
 
     @Override
     public UserResponse getUserById(Long id) {
-        Optional<User> existUser = userRepository.findById(id);
-        return existUser.map(user -> new UserResponse(user.getId(),user.getUsername(),
-                user.getPassword().getRandomPassword())).orElse(null);
+        User existUser = userRepository.findById(id).orElse(null);
+        if(existUser == null){
+            return null;
+        }
+        return new UserResponse(existUser.getId(),
+                                existUser.getUsername(),
+                                existUser.getPassword() != null ? existUser.getPassword().getRandomPassword(): "no password");
     }
 
     @Override
@@ -47,12 +52,20 @@ public class UserServiceImpl implements UserService {
         if(existUser != null){
             return null;
         }
-        PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars());
+
+        PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(),
+                                                                         userRequest.isExcludeNumbers(),
+                                                                         userRequest.isExcludeSpecialChars());
         Password password = passwordRepository.findByRandomPassword(passwordResponse.getRandomPassword());
+
         if(password == null) {
-            password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
+            password = new Password(userRequest.getLength(),
+                                    userRequest.isExcludeNumbers(),
+                                    userRequest.isExcludeSpecialChars(),
+                                    passwordResponse.getRandomPassword());
             passwordRepository.save(password);
         }
+
         existUser = new User(userRequest.getUsername(), password);
         userRepository.save(existUser);
         return new UserResponse(existUser.getId(), userRequest.getUsername(), password.getRandomPassword());
@@ -60,36 +73,43 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(@PathVariable Long id, UserRequest userRequest) {
-        Optional<User> existUser = userRepository.findById(id);
-        if (existUser.isEmpty()) {
+        User existUser = userRepository.findById(id).orElse(null);
+        if (existUser == null) {
             return null;
         }
-        PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars());
-        Password password = passwordRepository.findByRandomPassword(passwordResponse.getRandomPassword());
+        PasswordResponse passwordResponse = passwordService.generatePass(userRequest.getLength(),
+                                                                         userRequest.isExcludeNumbers(),
+                                                                         userRequest.isExcludeSpecialChars());
+        Password password = existUser.getPassword();
         if(password == null) {
-            password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(), userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
+            password = new Password(userRequest.getLength(),
+                                    userRequest.isExcludeNumbers(),
+                                    userRequest.isExcludeSpecialChars(),
+                                    passwordResponse.getRandomPassword());
             passwordRepository.save(password);
+        } else{
+            password.setRandomPassword(passwordResponse.getRandomPassword());
         }
-        existUser.get().setUsername(userRequest.getUsername());
-        existUser.get().setPassword(password);
-        existUser.get().setId(id);
-        userRepository.save(existUser.get());
-        return new UserResponse(existUser.get().getId(),userRequest.getUsername(), password.getRandomPassword());
+        existUser.setUsername(userRequest.getUsername());
+        existUser.setPassword(password);
+        existUser.setId(id);
+        userRepository.save(existUser);
+        return new UserResponse(existUser.getId(),userRequest.getUsername(), password.getRandomPassword());
     }
 
     @Override
     public boolean deleteUser(Long id) {
-        Optional<User> existUser = userRepository.findById(id);
-        if(existUser.isEmpty()){
+        User existUser = userRepository.findById(id).orElse(null);
+        if(existUser == null){
             return false;
         }
         List<Website> websites = websiteRepository.findAll();
         for(Website website: websites){
-            if(website.getUsers().contains(existUser.get())){
-                website.getUsers().remove(existUser.get());
+            if(website.getUsers().contains(existUser)){
+                website.getUsers().remove(existUser);
             }
         }
-        userRepository.delete(existUser.get());
+        userRepository.delete(existUser);
         return true;
     }
 }
