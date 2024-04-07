@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class UserRequest {
-   private String username;
+    private String username;
 
     private int length;
     private boolean excludeNumbers;

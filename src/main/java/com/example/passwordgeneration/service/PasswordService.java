@@ -7,6 +7,7 @@ import com.example.passwordgeneration.dto.response.PasswordResponse;
 import java.util.List;
 
 public interface PasswordService {
+
     List<PasswordResponse> getAllPasswords();
     PasswordResponse getPasswordById(Long id);
     PasswordResponse createPass(int length, boolean excludeNumbers,

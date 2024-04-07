@@ -1,5 +1,6 @@
 package com.example.passwordgeneration.service.impl;
 
+import com.example.passwordgeneration.cache.InMemoryCache;
 import com.example.passwordgeneration.dto.request.PasswordRequest;
 import com.example.passwordgeneration.dto.response.PasswordResponse;
 import com.example.passwordgeneration.model.Password;
@@ -14,9 +15,9 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
+
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 @Service
@@ -25,6 +26,9 @@ public class PasswordServiceImpl implements PasswordService {
     private final RestTemplate restTemplate;
     private final PasswordRepository repository;
     private final UserRepository userRepository;
+    private final InMemoryCache cache;
+    public static final String PASSWORD_KEY = "Password";
+
     @Override
     public List<PasswordResponse> getAllPasswords() {
         return repository.findAll().stream()
@@ -34,10 +38,14 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public PasswordResponse getPasswordById(Long id) {
-        Password existPassword = repository.findById(id).orElse(null);
+        Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
         if (existPassword == null){
-            return null;
+            existPassword = repository.findById(id).orElse(null);
+            if (existPassword == null){
+                return null;
+            }
         }
+        cache.put(PASSWORD_KEY + existPassword.getId(), existPassword);
         return new PasswordResponse(id, existPassword.getRandomPassword());
 
     }
@@ -65,6 +73,7 @@ public class PasswordServiceImpl implements PasswordService {
         Password existPassword = repository.findByRandomPassword(password.getRandomPassword());
         if(existPassword == null) {
             repository.save(password);
+            cache.put(PASSWORD_KEY + password.getId(), password);
             return new PasswordResponse(password.getId(), password.getRandomPassword());
         }
         return new PasswordResponse(existPassword.getId(), existPassword.getRandomPassword());
@@ -72,9 +81,12 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public PasswordResponse updatePassword(@PathVariable Long id, PasswordRequest passwordRequest) {
-        Password existPassword = repository.findById(id).orElse(null);
-        if (existPassword == null) {
-            return null;
+        Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
+        if (existPassword == null){
+            existPassword = repository.findById(id).orElse(null);
+            if (existPassword == null){
+                return null;
+            }
         }
         existPassword.setLength(passwordRequest.getLength());
         existPassword.setExcludeNumbers(passwordRequest.isExcludeNumbers());
@@ -84,20 +96,26 @@ public class PasswordServiceImpl implements PasswordService {
                 passwordRequest.isExcludeSpecialChars()).getRandomPassword());
 
         repository.save(existPassword);
+        cache.put(PASSWORD_KEY + existPassword.getId(), existPassword);
         return new PasswordResponse(id,existPassword.getRandomPassword());
     }
     @Override
     public boolean deletePassword(Long id) {
-        Password existPassword = repository.findById(id).orElse(null);
-        if(existPassword == null){
-            return false;
+        Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
+        if (existPassword == null){
+            existPassword = repository.findById(id).orElse(null);
+            if (existPassword == null){
+                return false;
+            }
         }
         List<User> users = userRepository.findAll();
         for(User user : users){
             if(user.getPassword() != null && user.getPassword().equals(existPassword)){
                 user.setPassword(null);
+                cache.remove(UserServiceImpl.USER_KEY + user.getId());
             }
         }
+        cache.remove(PASSWORD_KEY + existPassword.getId());
         repository.delete(existPassword);
         return true;
     }

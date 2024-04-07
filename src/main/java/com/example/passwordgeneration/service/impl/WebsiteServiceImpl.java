@@ -1,6 +1,7 @@
 package com.example.passwordgeneration.service.impl;
 
 
+import com.example.passwordgeneration.cache.InMemoryCache;
 import com.example.passwordgeneration.dto.request.UserRequest;
 import com.example.passwordgeneration.dto.request.WebsiteRequest;
 import com.example.passwordgeneration.dto.response.PasswordResponse;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +29,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final PasswordRepository passwordRepository;
-
+    private InMemoryCache cache;
+    public static final String WEBSITE_KEY = "Website";
     @Override
     public List<WebsiteResponse> getAllWebsites() {
         List<Website> websites = websiteRepository.findAll();
@@ -39,10 +40,14 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public WebsiteResponse getWebsiteById(Long id) {
-        Website existWebsite = websiteRepository.findById(id).orElse(null);
+        Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
         if (existWebsite == null){
-            return null;
+            existWebsite = websiteRepository.findById(id).orElse(null);
+            if (existWebsite == null){
+                return null;
+            }
         }
+        cache.put(WEBSITE_KEY + id, existWebsite);
         return new WebsiteResponse(id, existWebsite.getWebsiteName(),
                                    existWebsite.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()));
     }
@@ -61,14 +66,17 @@ public class WebsiteServiceImpl implements WebsiteService {
                     password = new Password(user.getLength(), user.isExcludeNumbers(),
                             user.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
                     passwordRepository.save(password);
+                    cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
                 }
                 existUser = new User(user.getUsername(), password);
                 userRepository.save(existUser);
+                cache.put(UserServiceImpl.USER_KEY + existUser.getId(), existUser);
             }
             users.add(existUser);
         }
         website.setUsers(users);
         websiteRepository.save(website);
+        cache.put(WEBSITE_KEY + website.getId(), website);
         return new WebsiteResponse(website.getId(),website.getWebsiteName(), website.getUsers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet()));
@@ -76,9 +84,12 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public WebsiteResponse addUser(Long id, UserRequest userRequest) {
-        Website existWebsite = websiteRepository.findById(id).orElse(null);
-        if(existWebsite == null){
-            return null;
+        Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
+        if (existWebsite == null){
+            existWebsite = websiteRepository.findById(id).orElse(null);
+            if (existWebsite == null){
+                return null;
+            }
         }
         User user = userRepository.findByUsername(userRequest.getUsername());
         if(user == null){
@@ -90,14 +101,16 @@ public class WebsiteServiceImpl implements WebsiteService {
                 password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(),
                         userRequest.isExcludeSpecialChars(), passwordResponse.getRandomPassword());
                 passwordRepository.save(password);
+                cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
             }
 
             user = new User(userRequest.getUsername(), password);
             userRepository.save(user);
+            cache.put(UserServiceImpl.USER_KEY + user.getId(), user);
         }
-
         existWebsite.getUsers().add(user);
         websiteRepository.save(existWebsite);
+        cache.put(WEBSITE_KEY + existWebsite.getId(), existWebsite);
         return new WebsiteResponse(existWebsite.getId(),existWebsite.getWebsiteName(), existWebsite.getUsers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet()));
@@ -105,17 +118,20 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public WebsiteResponse removeUser(Long id, String username) {
-        Website existWebsite = websiteRepository.findById(id).orElse(null);
-        if(existWebsite == null){
-            return null;
+        Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
+        if (existWebsite == null){
+            existWebsite = websiteRepository.findById(id).orElse(null);
+            if (existWebsite == null){
+                return null;
+            }
         }
-        User existUser = existWebsite.getUsers().stream().
-                filter(user -> user.getUsername().equals(username)).findFirst().orElse(null); // sql query
+        User existUser = websiteRepository.findInSetByUsername(username);
         if(existUser == null){
             return null;
         }
         existWebsite.getUsers().remove(existUser);
         websiteRepository.save(existWebsite);
+        cache.put(WEBSITE_KEY + id, existWebsite);
         return new WebsiteResponse(existWebsite.getId(),existWebsite.getWebsiteName(), existWebsite.getUsers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toSet()));
@@ -123,10 +139,14 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public boolean deleteWebsite(Long id) {
-        Website existWebsite = websiteRepository.findById(id).orElse(null);
-        if(existWebsite == null){
-            return false;
+        Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
+        if (existWebsite == null){
+            existWebsite = websiteRepository.findById(id).orElse(null);
+            if (existWebsite == null){
+                return false;
+            }
         }
+        cache.remove(WEBSITE_KEY + existWebsite);
         websiteRepository.delete(existWebsite);
         return true;
     }

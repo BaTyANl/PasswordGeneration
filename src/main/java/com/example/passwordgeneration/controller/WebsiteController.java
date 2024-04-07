@@ -45,7 +45,7 @@ public class WebsiteController {
     }
 
     @PutMapping("/add_user/{id}")
-    public ResponseEntity<Object> addIp(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<Object> addUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
         WebsiteResponse websiteResponse = websiteService.addUser(id, userRequest);
         if(websiteResponse != null) {
             return ResponseEntity.ok(websiteResponse);
@@ -55,7 +55,7 @@ public class WebsiteController {
     }
 
     @PutMapping("/remove_user/{id}")
-    public ResponseEntity<Object> removeIp(@PathVariable Long id, @RequestParam String username) {
+    public ResponseEntity<Object> removeUser(@PathVariable Long id, @RequestParam String username) {
         WebsiteResponse websiteResponse = websiteService.removeUser(id, username);
         if(websiteResponse != null) {
             return ResponseEntity.ok(websiteResponse);
