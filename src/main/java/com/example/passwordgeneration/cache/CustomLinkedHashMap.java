@@ -24,15 +24,16 @@ public class CustomLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 
   @Override
   public boolean equals(Object o) {
-    boolean result = false;
     if (this == o) {
-      result = true;
-    } else if (o instanceof CustomLinkedHashMap<?, ?> that) {
-      if (super.equals(o)) {
-        result = Objects.equals(maxSize, that.maxSize);
-      }
+      return true;
     }
-    return result;
+    if (!(o instanceof CustomLinkedHashMap<?, ?> that)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    return Objects.equals(maxSize, that.maxSize);
   }
 
   @Override
