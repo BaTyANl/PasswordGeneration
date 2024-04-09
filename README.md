@@ -16,3 +16,7 @@ And receives a JSON response with the generated password:
 In project was used PostrgreSQL database. There is ManyToOne connection between user and password and ManyToMany between user and website. The structure of database:
 ![image](https://github.com/BaTyANl/PasswordGeneration/assets/159899923/d4d1d5fa-53df-4876-862d-8ed05ba8d70c)
 
+Demonstration of the connection:
+![image](https://github.com/BaTyANl/PasswordGeneration/assets/159899923/ad8e4b91-a9b6-4d7e-909f-6b68d1dd55fa)
+
+
