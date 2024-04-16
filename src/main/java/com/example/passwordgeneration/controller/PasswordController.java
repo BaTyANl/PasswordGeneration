@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/password")
 @AllArgsConstructor
 public class PasswordController {
-  private static final String PASSWORD_NOT_FOUND = "Password wasn't found";
   private final PasswordService service;
 
   @GetMapping("/all")
@@ -36,13 +35,8 @@ public class PasswordController {
    * Get Password by id method.
    */
   @GetMapping("/id/{id}")
-  public ResponseEntity<Object> getPasswordById(@PathVariable Long id) {
-    PasswordResponse passwordResponse = service.getPasswordById(id);
-    if (passwordResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PASSWORD_NOT_FOUND);
-    } else {
-      return ResponseEntity.ok(passwordResponse);
-    }
+  public ResponseEntity<PasswordResponse> getPasswordById(@PathVariable Long id) {
+    return ResponseEntity.ok(service.getPasswordById(id));
   }
 
   @PostMapping("/create")
@@ -57,14 +51,9 @@ public class PasswordController {
    * Update password method.
    */
   @PutMapping("/update/{id}")
-  public ResponseEntity<Object> updatePassword(@PathVariable Long id,
+  public ResponseEntity<PasswordResponse> updatePassword(@PathVariable Long id,
                                                @RequestBody PasswordRequest passwordRequest) {
-    PasswordResponse passwordResponse = service.updatePassword(id, passwordRequest);
-    if (passwordResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PASSWORD_NOT_FOUND);
-    } else {
-      return ResponseEntity.ok(passwordResponse);
-    }
+    return ResponseEntity.ok(service.updatePassword(id, passwordRequest));
   }
 
   /**
@@ -72,12 +61,8 @@ public class PasswordController {
    */
   @DeleteMapping("/delete/{id}")
   public HttpStatus deletePassword(@PathVariable Long id) {
-    boolean isExist = service.deletePassword(id);
-    if (isExist) {
-      return HttpStatus.OK;
-    } else {
-      return HttpStatus.NOT_FOUND;
-    }
+    service.deletePassword(id);
+    return HttpStatus.OK;
   }
 }
 

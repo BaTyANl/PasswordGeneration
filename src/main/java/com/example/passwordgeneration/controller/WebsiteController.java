@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/api/v1/website")
 public class WebsiteController {
-  private static final String WEBSITE_NOT_FOUND = "Website wasn't found";
   private final WebsiteService websiteService;
 
   @GetMapping("/all")
@@ -37,53 +36,33 @@ public class WebsiteController {
    * Get website by id.
    */
   @GetMapping("/id/{id}")
-  public ResponseEntity<Object> getWebsiteById(@PathVariable Long id) {
-    WebsiteResponse websiteResponse = websiteService.getWebsiteById(id);
-    if (websiteResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(WEBSITE_NOT_FOUND);
-    } else {
-      return ResponseEntity.ok(websiteResponse);
-    }
+  public ResponseEntity<WebsiteResponse> getWebsiteById(@PathVariable Long id) {
+    return ResponseEntity.ok(websiteService.getWebsiteById(id));
   }
 
   /**
    * Create website.
    */
   @PostMapping("/create")
-  public ResponseEntity<Object> createWebsite(@RequestBody WebsiteRequest websiteRequest) {
-    WebsiteResponse websiteResponse = websiteService.createWebsite(websiteRequest);
-    if (websiteResponse != null) {
-      return ResponseEntity.ok(websiteResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-    }
+  public ResponseEntity<WebsiteResponse> createWebsite(@RequestBody WebsiteRequest websiteRequest) {
+      return ResponseEntity.ok(websiteService.createWebsite(websiteRequest));
   }
 
   /**
    * Add user in website.
    */
   @PutMapping("/add_user/{id}")
-  public ResponseEntity<Object> addUser(@PathVariable Long id,
+  public ResponseEntity<WebsiteResponse> addUser(@PathVariable Long id,
                                         @RequestBody UserRequest userRequest) {
-    WebsiteResponse websiteResponse = websiteService.addUser(id, userRequest);
-    if (websiteResponse != null) {
-      return ResponseEntity.ok(websiteResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-    }
+    return ResponseEntity.ok(websiteService.addUser(id, userRequest));
   }
 
   /**
    * Remove user from website.
    */
   @PutMapping("/remove_user/{id}")
-  public ResponseEntity<Object> removeUser(@PathVariable Long id, @RequestParam String username) {
-    WebsiteResponse websiteResponse = websiteService.removeUser(id, username);
-    if (websiteResponse != null) {
-      return ResponseEntity.ok(websiteResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Information wasn't correct");
-    }
+  public ResponseEntity<WebsiteResponse> removeUser(@PathVariable Long id, @RequestParam String username) {
+    return ResponseEntity.ok(websiteService.removeUser(id, username));
   }
 
   /**
@@ -91,12 +70,8 @@ public class WebsiteController {
    */
   @DeleteMapping("/delete/{id}")
   public HttpStatus deleteWebsite(@PathVariable Long id) {
-    boolean isExist = websiteService.deleteWebsite(id);
-    if (isExist) {
-      return HttpStatus.OK;
-    } else {
-      return HttpStatus.NOT_FOUND;
-    }
+    websiteService.deleteWebsite(id);
+    return HttpStatus.OK;
   }
 }
 

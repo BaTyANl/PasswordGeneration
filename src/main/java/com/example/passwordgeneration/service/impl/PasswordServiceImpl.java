@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -41,10 +42,8 @@ public class PasswordServiceImpl implements PasswordService {
   public PasswordResponse getPasswordById(Long id) {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
-      existPassword = repository.findById(id).orElse(null);
-      if (existPassword == null) {
-        return null;
-      }
+      existPassword = repository.findById(id).orElseThrow(
+              ()-> new NoSuchElementException("These password does not exist: " + id));
     }
     cache.put(PASSWORD_KEY + existPassword.getId(), existPassword);
     return new PasswordResponse(id, existPassword.getRandomPassword());
@@ -86,10 +85,8 @@ public class PasswordServiceImpl implements PasswordService {
   public PasswordResponse updatePassword(Long id, PasswordRequest passwordRequest) {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
-      existPassword = repository.findById(id).orElse(null);
-      if (existPassword == null) {
-        return null;
-      }
+      existPassword = repository.findById(id).orElseThrow(
+              ()-> new NoSuchElementException("These password does not exist: " + id));
     }
     existPassword.setLength(passwordRequest.getLength());
     existPassword.setExcludeNumbers(passwordRequest.isExcludeNumbers());
@@ -106,10 +103,8 @@ public class PasswordServiceImpl implements PasswordService {
   public boolean deletePassword(Long id) {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
-      existPassword = repository.findById(id).orElse(null);
-      if (existPassword == null) {
-        return false;
-      }
+      existPassword = repository.findById(id).orElseThrow(
+              () -> new NoSuchElementException("These password does not exist: " + id));
     }
     List<User> users = userRepository.findAll();
     for (User user : users) {

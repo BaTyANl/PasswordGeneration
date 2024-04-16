@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
-  private static final String USER_NOT_FOUND = "User wasn't found";
   private final UserService userService;
 
   @GetMapping("/all")
@@ -35,40 +34,25 @@ public class UserController {
    * Get user by id.
    */
   @GetMapping("/id/{id}")
-  public ResponseEntity<Object> getUserById(@PathVariable Long id) {
-    UserResponse userResponse = userService.getUserById(id);
-    if (userResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
-    } else {
-      return ResponseEntity.ok(userResponse);
-    }
+  public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+      return ResponseEntity.ok(userService.getUserById(id));
   }
 
   /**
    * Create user with password.
    */
   @PostMapping("/create")
-  public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest) {
-    UserResponse userResponse = userService.createUser(userRequest);
-    if (userResponse != null) {
-      return ResponseEntity.ok(userResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-    }
+  public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+    return ResponseEntity.ok(userService.createUser(userRequest));
   }
 
   /**
    * Update user.
    */
   @PutMapping("/update/{id}")
-  public ResponseEntity<Object> updateUser(@PathVariable Long id,
+  public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
                                            @RequestBody UserRequest userRequest) {
-    UserResponse userResponse = userService.updateUser(id, userRequest);
-    if (userResponse == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
-    } else {
-      return ResponseEntity.ok(userResponse);
-    }
+    return ResponseEntity.ok(userService.updateUser(id, userRequest));
   }
 
   /**
@@ -76,12 +60,8 @@ public class UserController {
    */
   @DeleteMapping("/delete/{id}")
   public HttpStatus deleteUser(@PathVariable Long id) {
-    boolean isExist = userService.deleteUser(id);
-    if (isExist) {
-      return HttpStatus.OK;
-    } else {
-      return HttpStatus.NOT_FOUND;
-    }
+    userService.deleteUser(id);
+    return HttpStatus.OK;
   }
 }
 

@@ -12,7 +12,10 @@ import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.repository.WebsiteRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.UserService;
+
+import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,10 +48,8 @@ public class UserServiceImpl implements UserService {
   public UserResponse getUserById(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
-      existUser = userRepository.findById(id).orElse(null);
-      if (existUser == null) {
-        return null;
-      }
+      existUser = userRepository.findById(id).orElseThrow(
+              ()->new NoSuchElementException("These user does not exist: " + id));
     }
     cache.put(USER_KEY + existUser.getId(), existUser);
     return new UserResponse(existUser.getId(),
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
   public UserResponse createUser(UserRequest userRequest) {
     User existUser = userRepository.findByUsername(userRequest.getUsername());
     if (existUser != null) {
-      return null;
+      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
@@ -92,10 +93,11 @@ public class UserServiceImpl implements UserService {
   public UserResponse updateUser(@PathVariable Long id, UserRequest userRequest) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
-      existUser = userRepository.findById(id).orElse(null);
-      if (existUser == null) {
-        return null;
-      }
+      existUser = userRepository.findById(id).orElseThrow(
+              ()-> new NoSuchElementException("User does not exist: " + id));
+    }
+    if (userRepository.findByUsername(userRequest.getUsername()) != null){
+      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
@@ -129,10 +131,8 @@ public class UserServiceImpl implements UserService {
   public boolean deleteUser(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
-      existUser = userRepository.findById(id).orElse(null);
-      if (existUser == null) {
-        return false;
-      }
+      existUser = userRepository.findById(id).orElseThrow(
+              ()-> new NoSuchElementException("User does not exist: " + id));
     }
     List<Website> websites = websiteRepository.findAll();
     for (Website website : websites) {
