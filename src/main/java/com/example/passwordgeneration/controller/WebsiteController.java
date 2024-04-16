@@ -45,7 +45,7 @@ public class WebsiteController {
    */
   @PostMapping("/create")
   public ResponseEntity<WebsiteResponse> createWebsite(@RequestBody WebsiteRequest websiteRequest) {
-      return ResponseEntity.ok(websiteService.createWebsite(websiteRequest));
+    return ResponseEntity.ok(websiteService.createWebsite(websiteRequest));
   }
 
   /**
@@ -61,7 +61,8 @@ public class WebsiteController {
    * Remove user from website.
    */
   @PutMapping("/remove_user/{id}")
-  public ResponseEntity<WebsiteResponse> removeUser(@PathVariable Long id, @RequestParam String username) {
+  public ResponseEntity<WebsiteResponse> removeUser(@PathVariable Long id,
+                                                    @RequestParam String username) {
     return ResponseEntity.ok(websiteService.removeUser(id, username));
   }
 

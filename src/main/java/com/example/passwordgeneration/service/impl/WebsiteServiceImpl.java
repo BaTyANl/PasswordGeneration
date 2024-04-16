@@ -14,8 +14,11 @@ import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.repository.WebsiteRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.WebsiteService;
-
-import java.util.*;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,7 +50,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
+              () -> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
     cache.put(WEBSITE_KEY + id, existWebsite);
     return new WebsiteResponse(id, existWebsite.getWebsiteName(),
@@ -57,8 +60,9 @@ public class WebsiteServiceImpl implements WebsiteService {
 
   @Override
   public WebsiteResponse createWebsite(WebsiteRequest websiteRequest) {
-    if (websiteRepository.findByWebsiteName(websiteRequest.getWebsiteName()) != null){
-      throw new ConcurrentModificationException("This website already exists: " + websiteRequest.getWebsiteName());
+    if (websiteRepository.findByWebsiteName(websiteRequest.getWebsiteName()) != null) {
+      throw new ConcurrentModificationException(
+              "This website already exists: " + websiteRequest.getWebsiteName());
     }
     Set<User> users = new HashSet<>();
     Website website = new Website(websiteRequest.getWebsiteName(), users);
@@ -100,12 +104,13 @@ public class WebsiteServiceImpl implements WebsiteService {
     Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
+              () -> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     User user = userRepository.findByUsername(userRequest.getUsername());
-    if (websiteRepository.findInSetByUsername(userRequest.getUsername()) != null){
-      throw new ConcurrentModificationException("User already exists in this website: " + userRequest.getUsername());
+    if (websiteRepository.findInSetByUsername(userRequest.getUsername()) != null) {
+      throw new ConcurrentModificationException(
+              "User already exists in this website: " + userRequest.getUsername());
     }
     if (user == null) {
       PasswordResponse passwordResponse = passwordService
@@ -140,7 +145,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
+              () -> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     User existUser = websiteRepository.findInSetByUsername(username);
@@ -161,7 +166,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
+              () -> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     cache.remove(WEBSITE_KEY + existWebsite);

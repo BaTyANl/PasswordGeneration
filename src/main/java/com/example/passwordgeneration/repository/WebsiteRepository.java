@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
  */
 public interface WebsiteRepository extends JpaRepository<Website, Long> {
   Website findByWebsiteName(String websiteName);
+
   @Query("SELECT u FROM Website w JOIN w.users u WHERE u.username = :username")
   User findInSetByUsername(@Param("username") String username);
 }

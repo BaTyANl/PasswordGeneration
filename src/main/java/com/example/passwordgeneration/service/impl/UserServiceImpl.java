@@ -12,7 +12,6 @@ import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.repository.WebsiteRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.UserService;
-
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,7 +49,7 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()->new NoSuchElementException(USER_NOT_EXIST + id));
+              () -> new NoSuchElementException(USER_NOT_EXIST + id));
     }
     cache.put(USER_KEY + existUser.getId(), existUser);
     return new UserResponse(existUser.getId(),
@@ -95,10 +94,11 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(USER_NOT_EXIST + id));
+              () -> new NoSuchElementException(USER_NOT_EXIST + id));
     }
-    if (userRepository.findByUsername(userRequest.getUsername()) != null){
-      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
+    if (userRepository.findByUsername(userRequest.getUsername()) != null) {
+      throw new ConcurrentModificationException(
+              "This user already exists: " + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException(USER_NOT_EXIST + id));
+              () -> new NoSuchElementException(USER_NOT_EXIST + id));
     }
     List<Website> websites = websiteRepository.findAll();
     for (Website website : websites) {
