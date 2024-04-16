@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
   private final WebsiteRepository websiteRepository;
   private final InMemoryCache cache;
   public static final String USER_KEY = "User";
+  public static final String USER_NOT_EXIST = "This user does not exist: ";
 
   @Override
   public List<UserResponse> getAllUsers() {
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()->new NoSuchElementException("These user does not exist: " + id));
+              ()->new NoSuchElementException(USER_NOT_EXIST + id));
     }
     cache.put(USER_KEY + existUser.getId(), existUser);
     return new UserResponse(existUser.getId(),
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
   public UserResponse createUser(UserRequest userRequest) {
     User existUser = userRepository.findByUsername(userRequest.getUsername());
     if (existUser != null) {
-      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
+      throw new ConcurrentModificationException(USER_NOT_EXIST + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
@@ -94,7 +95,7 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("User does not exist: " + id));
+              ()-> new NoSuchElementException(USER_NOT_EXIST + id));
     }
     if (userRepository.findByUsername(userRequest.getUsername()) != null){
       throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
@@ -132,7 +133,7 @@ public class UserServiceImpl implements UserService {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("User does not exist: " + id));
+              ()-> new NoSuchElementException(USER_NOT_EXIST + id));
     }
     List<Website> websites = websiteRepository.findAll();
     for (Website website : websites) {

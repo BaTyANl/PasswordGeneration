@@ -32,6 +32,7 @@ public class WebsiteServiceImpl implements WebsiteService {
   private final PasswordRepository passwordRepository;
   private InMemoryCache cache;
   public static final String WEBSITE_KEY = "Website";
+  public static final String WEBSITE_NOT_EXIST = "This website does not exist: ";
 
   @Override
   public List<WebsiteResponse> getAllWebsites() {
@@ -46,7 +47,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("Website does not exist: " + id));
+              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
     cache.put(WEBSITE_KEY + id, existWebsite);
     return new WebsiteResponse(id, existWebsite.getWebsiteName(),
@@ -99,7 +100,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("Website does not exist: " + id));
+              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     User user = userRepository.findByUsername(userRequest.getUsername());
@@ -139,7 +140,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("Website does not exist: " + id));
+              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     User existUser = websiteRepository.findInSetByUsername(username);
@@ -160,7 +161,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     if (existWebsite == null) {
       existWebsite = websiteRepository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("Website does not exist: " + id));
+              ()-> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
     cache.remove(WEBSITE_KEY + existWebsite);
