@@ -30,7 +30,7 @@ public class PasswordServiceImpl implements PasswordService {
   private final UserRepository userRepository;
   private final InMemoryCache cache;
   public static final String PASSWORD_KEY = "Password";
-
+  public static final String PASSWORD_NOT_EXIST = "This password does not exist: ";
   @Override
   public List<PasswordResponse> getAllPasswords() {
     return repository.findAll().stream()
@@ -43,7 +43,7 @@ public class PasswordServiceImpl implements PasswordService {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
       existPassword = repository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("These password does not exist: " + id));
+              ()-> new NoSuchElementException(PASSWORD_NOT_EXIST + id));
     }
     cache.put(PASSWORD_KEY + existPassword.getId(), existPassword);
     return new PasswordResponse(id, existPassword.getRandomPassword());
@@ -86,7 +86,7 @@ public class PasswordServiceImpl implements PasswordService {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
       existPassword = repository.findById(id).orElseThrow(
-              ()-> new NoSuchElementException("These password does not exist: " + id));
+              ()-> new NoSuchElementException(PASSWORD_NOT_EXIST + id));
     }
     existPassword.setLength(passwordRequest.getLength());
     existPassword.setExcludeNumbers(passwordRequest.isExcludeNumbers());
@@ -104,7 +104,7 @@ public class PasswordServiceImpl implements PasswordService {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
       existPassword = repository.findById(id).orElseThrow(
-              () -> new NoSuchElementException("These password does not exist: " + id));
+              () -> new NoSuchElementException(PASSWORD_NOT_EXIST + id));
     }
     List<User> users = userRepository.findAll();
     for (User user : users) {
