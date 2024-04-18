@@ -20,5 +20,5 @@ public interface WebsiteService {
 
   WebsiteResponse removeUser(Long id, String username);
 
-  boolean deleteWebsite(Long id);
+  void deleteWebsite(Long id);
 }
