@@ -60,7 +60,7 @@ public class PasswordServiceImpl implements PasswordService {
     properties.load(fileInputStream);
     String apiKey = properties.getProperty("apiKey");
     String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length
-            + "&excludeNumbers=" + excludeNumbers + "&excludeSpecialChars=" + excludeSpecialChars
+            + "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars
             + "&X-Api-Key=" + apiKey;
     String jsonStr = restTemplate.getForObject(url, String.class);
     ObjectMapper objectMapper = new ObjectMapper();
@@ -101,7 +101,7 @@ public class PasswordServiceImpl implements PasswordService {
   }
 
   @Override
-  public boolean deletePassword(Long id) {
+  public void deletePassword(Long id) {
     Password existPassword = (Password) cache.get(PASSWORD_KEY + id);
     if (existPassword == null) {
       existPassword = repository.findById(id).orElseThrow(
@@ -116,6 +116,5 @@ public class PasswordServiceImpl implements PasswordService {
     }
     cache.remove(PASSWORD_KEY + existPassword.getId());
     repository.delete(existPassword);
-    return true;
   }
 }

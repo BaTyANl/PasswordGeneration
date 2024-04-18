@@ -12,9 +12,8 @@ import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.repository.WebsiteRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.UserService;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.NoSuchElementException;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,22 @@ public class UserServiceImpl implements UserService {
                     ? user.getPassword().getRandomPassword() : "no password")).toList();
   }
 
+  User getFromRepo(Long id){
+    User existUser = (User) cache.get(USER_KEY + id);
+    if (existUser == null) {
+      existUser = userRepository.findById(id).orElseThrow(
+              () -> new NoSuchElementException(USER_NOT_EXIST + id));
+    }
+    return existUser;
+  }
+  public List<UserResponse> getWithUnsafePassword() {
+    List<Object[]> users = userRepository.findWithUnsafePassword();
+    return users.stream().map(user -> new UserResponse((Long) user[0],
+            getFromRepo((Long) user[0]).getWebsite().stream().map(Website::getWebsiteName).collect(Collectors.toSet()),
+            (String) user[2], user[7] != null
+            ? getFromRepo((Long) user[0]).getPassword().getRandomPassword() : "no password")).toList();
+  }
+
   @Override
   public UserResponse getUserById(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
@@ -63,7 +78,7 @@ public class UserServiceImpl implements UserService {
   public UserResponse createUser(UserRequest userRequest) {
     User existUser = userRepository.findByUsername(userRequest.getUsername());
     if (existUser != null) {
-      throw new ConcurrentModificationException(USER_NOT_EXIST + userRequest.getUsername());
+      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
@@ -129,7 +144,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean deleteUser(Long id) {
+  public void deleteUser(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
@@ -143,7 +158,6 @@ public class UserServiceImpl implements UserService {
     }
     cache.remove(USER_KEY + existUser.getId());
     userRepository.delete(existUser);
-    return true;
   }
 }
 

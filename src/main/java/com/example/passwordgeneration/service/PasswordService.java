@@ -18,7 +18,7 @@ public interface PasswordService {
 
   PasswordResponse updatePassword(Long id, PasswordRequest passwordRequest);
 
-  boolean deletePassword(Long id);
+  void deletePassword(Long id);
 
   PasswordResponse generatePass(int length, boolean excludeNumbers,
                                   boolean excludeSpecialChars);

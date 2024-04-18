@@ -10,11 +10,13 @@ import java.util.List;
 public interface UserService {
   List<UserResponse> getAllUsers();
 
+  List<UserResponse> getWithUnsafePassword();
+
   UserResponse getUserById(Long id);
 
   UserResponse createUser(UserRequest userRequest);
 
   UserResponse updateUser(Long id, UserRequest userRequest);
 
-  boolean deleteUser(Long id);
+  void deleteUser(Long id);
 }

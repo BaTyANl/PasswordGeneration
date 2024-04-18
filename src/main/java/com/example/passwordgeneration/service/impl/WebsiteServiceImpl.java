@@ -108,7 +108,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     User user = userRepository.findByUsername(userRequest.getUsername());
-    if (websiteRepository.findInSetByUsername(userRequest.getUsername()) != null) {
+    if (websiteRepository.findInSetByUsername(userRequest.getUsername(), id) != null) {
       throw new ConcurrentModificationException(
               "User already exists in this website: " + userRequest.getUsername());
     }
@@ -148,7 +148,7 @@ public class WebsiteServiceImpl implements WebsiteService {
               () -> new NoSuchElementException(WEBSITE_NOT_EXIST + id));
     }
 
-    User existUser = websiteRepository.findInSetByUsername(username);
+    User existUser = websiteRepository.findInSetByUsername(username, id);
     if (existUser == null) {
       throw new NoSuchElementException("User does not exist: " + username);
     }
@@ -161,7 +161,7 @@ public class WebsiteServiceImpl implements WebsiteService {
   }
 
   @Override
-  public boolean deleteWebsite(Long id) {
+  public void deleteWebsite(Long id) {
     Website existWebsite = (Website) cache.get(WEBSITE_KEY + id);
 
     if (existWebsite == null) {
@@ -171,6 +171,5 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     cache.remove(WEBSITE_KEY + existWebsite);
     websiteRepository.delete(existWebsite);
-    return true;
   }
 }

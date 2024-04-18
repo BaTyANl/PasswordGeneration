@@ -30,6 +30,10 @@ public class UserController {
     return userService.getAllUsers();
   }
 
+  @GetMapping("/unsafe")
+  public List<UserResponse> getWithUnsafePassword() {
+    return userService.getWithUnsafePassword();
+  }
   /**
    * Get user by id.
    */
