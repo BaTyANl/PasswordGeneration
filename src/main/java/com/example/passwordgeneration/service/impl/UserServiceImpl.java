@@ -12,8 +12,9 @@ import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.repository.WebsiteRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.UserService;
-
-import java.util.*;
+import java.util.ConcurrentModificationException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService {
                     ? user.getPassword().getRandomPassword() : NO_PASSWORD)).toList();
   }
 
-  User getFromRepo(Long id){
+  User getFromRepo(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
@@ -52,12 +53,18 @@ public class UserServiceImpl implements UserService {
     }
     return existUser;
   }
+
+  /**
+   * Get all users with unsafe password.
+   */
   public List<UserResponse> getWithUnsafePassword() {
     List<Object[]> users = userRepository.findWithUnsafePassword();
     return users.stream().map(user -> new UserResponse((Long) user[0],
-            getFromRepo((Long) user[0]).getWebsite().stream().map(Website::getWebsiteName).collect(Collectors.toSet()),
+            getFromRepo((Long) user[0]).getWebsite().stream()
+                    .map(Website::getWebsiteName).collect(Collectors.toSet()),
             (String) user[2], user[7] != null
-            ? getFromRepo((Long) user[0]).getPassword().getRandomPassword() : NO_PASSWORD)).toList();
+            ? getFromRepo((Long) user[0]).getPassword()
+                    .getRandomPassword() : NO_PASSWORD)).toList();
   }
 
   @Override
@@ -79,7 +86,8 @@ public class UserServiceImpl implements UserService {
   public UserResponse createUser(UserRequest userRequest) {
     User existUser = userRepository.findByUsername(userRequest.getUsername());
     if (existUser != null) {
-      throw new ConcurrentModificationException("This user already exists: " + userRequest.getUsername());
+      throw new ConcurrentModificationException(
+              "This user already exists: " + userRequest.getUsername());
     }
     PasswordResponse passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
