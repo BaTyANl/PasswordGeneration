@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
   private final WebsiteRepository websiteRepository;
   private final InMemoryCache cache;
   public static final String USER_KEY = "User";
+  public static final String NO_PASSWORD = "no password";
   public static final String USER_NOT_EXIST = "This user does not exist: ";
 
   @Override
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
             user.getWebsite().stream().map(Website::getWebsiteName).collect(Collectors.toSet()),
             user.getUsername(),
             user.getPassword() != null
-                    ? user.getPassword().getRandomPassword() : "no password")).toList();
+                    ? user.getPassword().getRandomPassword() : NO_PASSWORD)).toList();
   }
 
   User getFromRepo(Long id){
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
     return users.stream().map(user -> new UserResponse((Long) user[0],
             getFromRepo((Long) user[0]).getWebsite().stream().map(Website::getWebsiteName).collect(Collectors.toSet()),
             (String) user[2], user[7] != null
-            ? getFromRepo((Long) user[0]).getPassword().getRandomPassword() : "no password")).toList();
+            ? getFromRepo((Long) user[0]).getPassword().getRandomPassword() : NO_PASSWORD)).toList();
   }
 
   @Override
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
          existUser.getWebsite().stream().map(Website::getWebsiteName).collect(Collectors.toSet()),
          existUser.getUsername(),
          existUser.getPassword() != null
-                 ? existUser.getPassword().getRandomPassword() : "no password");
+                 ? existUser.getPassword().getRandomPassword() : NO_PASSWORD);
   }
 
   @Override
