@@ -16,6 +16,8 @@ public interface UserService {
 
   UserResponse createUser(UserRequest userRequest);
 
+  List<UserResponse> createManyUsers(List<UserRequest> userRequests);
+
   UserResponse updateUser(Long id, UserRequest userRequest);
 
   void deleteUser(Long id);

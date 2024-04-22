@@ -16,6 +16,8 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -112,6 +114,15 @@ public class UserServiceImpl implements UserService {
                             userRequest.getUsername(),
                             password.getRandomPassword());
   }
+
+  @Override
+  @Transactional
+  public List<UserResponse> createManyUsers(List<UserRequest> userRequests){
+    return userRequests.stream()
+            .map(this::createUser)
+            .collect(Collectors.toList());
+  }
+
 
   @Override
   public UserResponse updateUser(@PathVariable Long id, UserRequest userRequest) {

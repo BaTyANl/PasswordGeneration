@@ -51,6 +51,11 @@ public class UserController {
     return ResponseEntity.ok(userService.createUser(userRequest));
   }
 
+  @PostMapping("/create_many")
+  public List<UserResponse> createManyUsers(
+          @RequestBody List<UserRequest> userRequests){
+    return  userService.createManyUsers(userRequests);
+  }
   /**
    * Update user.
    */
