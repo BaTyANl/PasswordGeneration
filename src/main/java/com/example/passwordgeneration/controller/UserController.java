@@ -53,12 +53,13 @@ public class UserController {
 
   @PostMapping("/create_many")
   public List<UserResponse> createManyUsers(
-          @RequestBody List<UserRequest> userRequests){
+          @RequestBody List<UserRequest> userRequests) {
     return  userService.createManyUsers(userRequests);
   }
   /**
    * Update user.
    */
+
   @PutMapping("/update/{id}")
   public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
                                            @RequestBody UserRequest userRequest) {

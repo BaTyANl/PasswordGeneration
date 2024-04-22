@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class LoggingAspects {
-  @Pointcut("execution(* com.example.passwordgeneration.service.impl.*.*(..)) " +
-          "|| execution(* com.example.passwordgeneration.exceptions.ExceptionsHandler.*(..))")
+  @Pointcut("execution(* com.example.passwordgeneration.service.impl.*.*(..)) "
+          + "|| execution(* com.example.passwordgeneration.exceptions.ExceptionsHandler.*(..))")
   public void allMethods() {
   }
 
