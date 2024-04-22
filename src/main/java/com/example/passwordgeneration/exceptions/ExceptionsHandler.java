@@ -17,7 +17,7 @@ public class ExceptionsHandler {
    * 500 exception.
    */
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+  public ResponseEntity<ErrorResponse> internalServerErrorException(Exception exception) {
     ErrorResponse errorResponse =
             new ErrorResponse(LocalDateTime.now(), 500, exception.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
