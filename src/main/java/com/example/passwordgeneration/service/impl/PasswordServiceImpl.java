@@ -58,6 +58,7 @@ public class PasswordServiceImpl implements PasswordService {
     FileInputStream fileInputStream = new FileInputStream("apikey.properties");
     properties.load(fileInputStream);
     String apiKey = properties.getProperty("apiKey");
+    fileInputStream.close();
     String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length
             + "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars
             + "&X-Api-Key=" + apiKey;

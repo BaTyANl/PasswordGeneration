@@ -51,7 +51,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetAllUsers(){
+    void testGetAllUsers(){
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("user1");
@@ -91,16 +91,16 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetFromRepo_UserExistsInCache() {
+    void testGetFromRepo_UserExistsInCache() {
         Long userId = 1L;
         User existingUser = new User();
         existingUser.setId(userId);
 
-        when(cache.get("User" + userId)).thenReturn(existingUser);
+        when(cache.get(USER_KEY + userId)).thenReturn(existingUser);
 
         User result = userService.getFromRepo(userId);
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(0)).findById(userId);
         verifyNoMoreInteractions(cache, userRepository);
 
@@ -108,17 +108,17 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetFromRepo_UserExistsInRepository() {
+    void testGetFromRepo_UserExistsInRepository() {
         Long userId = 1L;
         User existingUser = new User();
         existingUser.setId(userId);
 
-        when(cache.get("User" + userId)).thenReturn(null);
+        when(cache.get(USER_KEY + userId)).thenReturn(null);
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 
         User result = userService.getFromRepo(userId);
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(cache, userRepository);
 
@@ -126,22 +126,22 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetFromRepo_UserNotFound() {
+    void testGetFromRepo_UserNotFound() {
         Long userId = 1L;
 
-        when(cache.get("User" + userId)).thenReturn(null);
+        when(cache.get(USER_KEY + userId)).thenReturn(null);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> userService.getFromRepo(userId));
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(cache, userRepository);
     }
 
     @Test
-    public void getUserByIdTest_NotInCache(){
+    void getUserByIdTest_NotInCache(){
         Long userId = 1L;
         User user = new User();
         user.setId(1L);
@@ -167,7 +167,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getUserByIdTest(){
+    void getUserByIdTest(){
         Long userId = 1L;
         User user = new User();
         user.setId(1L);
@@ -192,7 +192,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserById_userNotFound() {
+    void testGetUserById_userNotFound() {
         Long userId = 1L;
         when(cache.get(USER_KEY + userId)).thenReturn(null);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -206,7 +206,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUserTest_newUser(){
+    void createUserTest_newUser(){
         UserRequest userRequest = new UserRequest(
                 "user1", 9, false, true);
         when(userRepository.findByUsername(userRequest.getUsername())).thenReturn(null);
@@ -231,7 +231,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testCreateUser_userExists() {
+    void testCreateUser_userExists() {
         UserRequest userRequest = new UserRequest("user1", 9, false, true);
         User existingUser = new User("user1", new Password(9, false, true, "qwerty123"));
         when(userRepository.findByUsername(userRequest.getUsername())).thenReturn(existingUser);
@@ -244,7 +244,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createManyUsersTest() {
+    void createManyUsersTest() {
         List<UserRequest> userRequests = Arrays.asList(
                 new UserRequest("username1", 8, true, true),
                 new UserRequest("username2", 10, false, true)
@@ -285,7 +285,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void updateUserTest_userExists(){
+    void updateUserTest_userExists(){
         Long userId = 1L;
         UserRequest userRequest = new UserRequest("newUsername", 8, true, true);
 
@@ -295,7 +295,7 @@ public class UserServiceTest {
         Password existingPassword = new Password(8, true, true, "oldPassword");
         existingUser.setPassword(existingPassword);
 
-        when(cache.get("User" + userId)).thenReturn(existingUser);
+        when(cache.get(USER_KEY + userId)).thenReturn(existingUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.findByUsername(userRequest.getUsername())).thenReturn(null);
         when(passwordService.generatePass(userRequest.getLength(),
@@ -312,7 +312,7 @@ public class UserServiceTest {
         assertEquals("newUsername", existingUser.getUsername());
         assertEquals("newPassword", existingUser.getPassword().getRandomPassword());
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(0)).findById(userId);
         verify(userRepository, times(1)).findByUsername(userRequest.getUsername());
         verify(passwordService, times(1)).generatePass(userRequest.getLength(),
@@ -321,21 +321,21 @@ public class UserServiceTest {
         verify(passwordRepository, times(0)).save(any(Password.class));
         verify(cache, times(0)).put(anyString(), any(Password.class));
         verify(userRepository, times(1)).save(existingUser);
-        verify(cache, times(1)).put("User" + userId, existingUser);
+        verify(cache, times(1)).put(USER_KEY + userId, existingUser);
     }
 
     @Test
-    public void testUpdateUser_UserNotFound() {
+    void testUpdateUser_UserNotFound() {
         Long userId = 1L;
         UserRequest userRequest = new UserRequest("newUsername", 8, true, true);
 
-        when(cache.get("User" + userId)).thenReturn(null);
+        when(cache.get(USER_KEY + userId)).thenReturn(null);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(NoSuchElementException.class,
                 () -> userService.updateUser(userId, userRequest));
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(0)).findByUsername(anyString());
         verify(passwordService, times(0)).generatePass(anyInt(), anyBoolean(), anyBoolean());
@@ -346,7 +346,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testUpdateUser_ConcurrentModificationException() {
+    void testUpdateUser_ConcurrentModificationException() {
         Long userId = 1L;
         UserRequest userRequest = new UserRequest("newUsername", 8, true, true);
 
@@ -355,14 +355,14 @@ public class UserServiceTest {
         existingUser.setUsername("oldUsername");
         User existingUserWithSameUsername = new User();
 
-        when(cache.get("User" + userId)).thenReturn(existingUser);
+        when(cache.get(USER_KEY + userId)).thenReturn(existingUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.findByUsername(userRequest.getUsername())).thenReturn(existingUserWithSameUsername);
 
         assertThrows(ConcurrentModificationException.class,
                 () -> userService.updateUser(userId, userRequest));
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(0)).findById(userId);
         verify(userRepository, times(1)).findByUsername(userRequest.getUsername());
         verify(passwordService, times(0)).generatePass(anyInt(), anyBoolean(), anyBoolean());
@@ -373,34 +373,34 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUser_UserExists() {
+    void testDeleteUser_UserExists() {
         Long userId = 1L;
         User existingUser = new User();
         existingUser.setId(userId);
 
-        when(cache.get("User" + userId)).thenReturn(existingUser);
+        when(cache.get(USER_KEY + userId)).thenReturn(existingUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         userService.deleteUser(userId);
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(0)).findById(userId);
         verify(websiteRepository, times(1)).findAll();
         verify(userRepository, times(1)).delete(existingUser);
-        verify(cache, times(1)).remove("User" + existingUser.getId());
+        verify(cache, times(1)).remove(USER_KEY + existingUser.getId());
         verifyNoMoreInteractions(cache, userRepository, websiteRepository);
     }
 
     @Test
-    public void testDeleteUser_UserNotFound() {
+    void testDeleteUser_UserNotFound() {
         Long userId = 1L;
 
-        when(cache.get("User" + userId)).thenReturn(null);
+        when(cache.get(USER_KEY + userId)).thenReturn(null);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
                 () -> userService.deleteUser(userId));
 
-        verify(cache, times(1)).get("User" + userId);
+        verify(cache, times(1)).get(USER_KEY + userId);
         verify(userRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(cache, userRepository, websiteRepository);
     }
