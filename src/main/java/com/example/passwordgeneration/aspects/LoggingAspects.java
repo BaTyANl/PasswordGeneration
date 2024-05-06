@@ -41,12 +41,6 @@ public class LoggingAspects {
     log.info("Method " + joinPoint.getSignature().getName() + " executed.");
   }
 
-  /*@AfterThrowing(pointcut = "allMethods()", throwing = "exception")
-  public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
-    log.info("Method " + joinPoint.getSignature().getName() + " threw an exception "
-        + exception.getClass().getSimpleName() + " with message " + exception.getMessage());
-  }*/
-
   @Pointcut("execution(* com.example.passwordgeneration.exceptions.ExceptionsHandler.*(..))")
   public void exceptionMethods() {
 
