@@ -1,4 +1,4 @@
-package com.ecample.passwordgeneration.service;
+/*package com.ecample.passwordgeneration.service;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,4 +7,4 @@ public class WebsiteServiceTest {
     void test(){
 
     }
-}
+}*/

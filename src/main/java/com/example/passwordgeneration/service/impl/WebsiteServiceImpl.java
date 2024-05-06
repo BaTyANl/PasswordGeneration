@@ -4,7 +4,6 @@ package com.example.passwordgeneration.service.impl;
 import com.example.passwordgeneration.cache.InMemoryCache;
 import com.example.passwordgeneration.dto.request.UserRequest;
 import com.example.passwordgeneration.dto.request.WebsiteRequest;
-import com.example.passwordgeneration.dto.response.PasswordResponse;
 import com.example.passwordgeneration.dto.response.WebsiteResponse;
 import com.example.passwordgeneration.model.Password;
 import com.example.passwordgeneration.model.User;
@@ -71,16 +70,16 @@ public class WebsiteServiceImpl implements WebsiteService {
       User existUser = userRepository.findByUsername(user.getUsername());
 
       if (existUser == null) {
-        PasswordResponse passwordResponse = passwordService
+        String passwordResponse = passwordService
                 .generatePass(user.getLength(),
                               user.isExcludeNumbers(), user.isExcludeSpecialChars());
         Password password = passwordRepository
-                .findByRandomPassword(passwordResponse.getRandomPassword());
+                .findByRandomPassword(passwordResponse);
 
         if (password == null) {
           password = new Password(user.getLength(), user.isExcludeNumbers(),
                                   user.isExcludeSpecialChars(),
-                                  passwordResponse.getRandomPassword());
+                                  passwordResponse);
           passwordRepository.save(password);
           cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
         }
@@ -113,17 +112,17 @@ public class WebsiteServiceImpl implements WebsiteService {
               "User already exists in this website: " + userRequest.getUsername());
     }
     if (user == null) {
-      PasswordResponse passwordResponse = passwordService
+      String passwordResponse = passwordService
               .generatePass(userRequest.getLength(),
                             userRequest.isExcludeNumbers(),
                             userRequest.isExcludeSpecialChars());
       Password password = passwordRepository
-              .findByRandomPassword(passwordResponse.getRandomPassword());
+              .findByRandomPassword(passwordResponse);
 
       if (password == null) {
         password = new Password(userRequest.getLength(), userRequest.isExcludeNumbers(),
                                 userRequest.isExcludeSpecialChars(),
-                                passwordResponse.getRandomPassword());
+                                passwordResponse);
         passwordRepository.save(password);
         cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
       }

@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -18,8 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class LoggingAspects {
-  @Pointcut("execution(* com.example.passwordgeneration.service.impl.*.*(..)) "
-          + "|| execution(* com.example.passwordgeneration.exceptions.ExceptionsHandler.*(..))")
+  @Pointcut("execution(* com.example.passwordgeneration.service.impl.*.*(..)) ")
   public void allMethods() {
   }
 
@@ -43,9 +41,22 @@ public class LoggingAspects {
     log.info("Method " + joinPoint.getSignature().getName() + " executed.");
   }
 
-  @AfterThrowing(pointcut = "allMethods()", throwing = "exception")
+  /*@AfterThrowing(pointcut = "allMethods()", throwing = "exception")
   public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
     log.info("Method " + joinPoint.getSignature().getName() + " threw an exception "
         + exception.getClass().getSimpleName() + " with message " + exception.getMessage());
+  }*/
+
+  @Pointcut("execution(* com.example.passwordgeneration.exceptions.ExceptionsHandler.*(..))")
+  public void exceptionMethods() {
+
+  }
+
+  /**
+   * Before throwing exception.
+   */
+  @Before("exceptionMethods()")
+  public void logBeforeException(JoinPoint joinPoint) {
+    log.error("Threw exception " + joinPoint.getSignature().getName());
   }
 }

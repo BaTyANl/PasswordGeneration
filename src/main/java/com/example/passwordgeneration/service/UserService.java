@@ -2,6 +2,8 @@ package com.example.passwordgeneration.service;
 
 import com.example.passwordgeneration.dto.request.UserRequest;
 import com.example.passwordgeneration.dto.response.UserResponse;
+import com.example.passwordgeneration.model.User;
+
 import java.util.List;
 
 /**
@@ -21,4 +23,6 @@ public interface UserService {
   UserResponse updateUser(Long id, UserRequest userRequest);
 
   void deleteUser(Long id);
+
+  User getFromRepo(Long id);
 }

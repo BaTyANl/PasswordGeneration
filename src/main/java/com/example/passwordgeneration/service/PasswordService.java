@@ -2,6 +2,7 @@ package com.example.passwordgeneration.service;
 
 import com.example.passwordgeneration.dto.request.PasswordRequest;
 import com.example.passwordgeneration.dto.response.PasswordResponse;
+
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ public interface PasswordService {
 
   void deletePassword(Long id);
 
-  PasswordResponse generatePass(int length, boolean excludeNumbers,
+  String generatePass(int length, boolean excludeNumbers,
                                   boolean excludeSpecialChars);
+
 }

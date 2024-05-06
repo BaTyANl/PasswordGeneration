@@ -5,12 +5,12 @@ import com.example.passwordgeneration.dto.request.PasswordRequest;
 import com.example.passwordgeneration.dto.response.PasswordResponse;
 import com.example.passwordgeneration.model.Password;
 import com.example.passwordgeneration.model.User;
+import com.example.passwordgeneration.model.Website;
 import com.example.passwordgeneration.repository.PasswordRepository;
 import com.example.passwordgeneration.repository.UserRepository;
 import com.example.passwordgeneration.service.PasswordService;
 import com.example.passwordgeneration.service.impl.PasswordServiceImpl;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.Assertions;
+import com.example.passwordgeneration.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -21,9 +21,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 public class PasswordServiceTest {
+    public static final String PASSWORD_KEY = "Password";
     private PasswordService passwordService;
 
     @Mock
@@ -46,6 +46,28 @@ public class PasswordServiceTest {
     }
 
     @Test
+    void testGetPasswordById_FromCache() {
+        Long id = 1L;
+        Password password = new Password();
+        password.setId(id);
+        password.setLength(20);
+        password.setExcludeNumbers(true);
+        password.setExcludeSpecialChars(true);
+        password.setRandomPassword("yVjcTRjXnPfpiRuHTZeT");
+        Set<User> users = new HashSet<>();
+        users.add(new User());
+        password.setUsers(users);
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(password);
+
+        PasswordResponse result = passwordService.getPasswordById(id);
+
+        assertEquals(password.getId(), result.getId());
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
+        verify(passwordRepository, times(0)).findById(id);
+        verify(cache, times(1)).put(anyString(), any(Password.class));
+    }
+
+    @Test
     void testGetPasswordById() {
         Long id = 1L;
         Password password = new Password();
@@ -57,20 +79,28 @@ public class PasswordServiceTest {
         Set<User> users = new HashSet<>();
         users.add(new User());
         password.setUsers(users);
+
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
         when(passwordRepository.findById(id)).thenReturn(Optional.of(password));
 
         PasswordResponse result = passwordService.getPasswordById(id);
 
+        assertEquals(password.getId(), result.getId());
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
         verify(passwordRepository, times(1)).findById(id);
-        assertNotEquals(result, new PasswordResponse(password.getId(), result.getRandomPassword()));
+        verify(cache, times(1)).put(PASSWORD_KEY + id, password);
+
     }
 
     @Test
     void testGetPasswordById_PasswordNotFound() {
         Long id = 1L;
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
         when(passwordRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> passwordService.getPasswordById(id));
+        verify(passwordRepository, times(1)).findById(id);
+        verify(cache, times(0)).put(anyString(), any(Password.class));
     }
 
     @Test
@@ -108,23 +138,176 @@ public class PasswordServiceTest {
         verify(passwordRepository, times(1)).findAll();
     }
 
-    /*
+    @Test
+    void testCreatePass_newPassword(){
+        Password password = new Password();
+        int length = 11;
+        boolean excludeNumbers = false;
+        boolean excludeSpecialChars = true;
+        String randomPassword = "qwerty123";
+        Set<User> users = new HashSet<>();
+        users.add(new User());
+
+        when(passwordRepository.findByRandomPassword(randomPassword)).thenReturn(null);
+        password.setId(1L);
+        password.setLength(length);
+        password.setExcludeSpecialChars(excludeSpecialChars);
+        password.setRandomPassword(randomPassword);
+        password.setExcludeNumbers(excludeNumbers);
+        password.setUsers(users);
+
+        PasswordResponse result = passwordService.createPass(length, excludeNumbers, excludeSpecialChars);
+
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
+    }
+
     @Test
     void testCreatePass(){
-        PasswordResponse passwordResponse =
-                new PasswordResponse(1L, "yVjcTRjXnPfpiRuHTZeT");
-        when(restTemplate.getForObject(anyString(), eq(PasswordResponse.class)))
-                .thenReturn(passwordResponse);
+        Password password = new Password();
+        int length = 11;
+        boolean excludeNumbers = false;
+        boolean excludeSpecialChars = true;
+        Set<User> users = new HashSet<>();
+        users.add(new User());
 
-        PasswordResponse result = passwordService.createPass(20, true, true);
-        assertNotEquals(new );
+        when(passwordRepository.findByRandomPassword("qwerty123")).thenReturn(null);
+        password.setId(1L);
+        password.setLength(length);
+        password.setExcludeSpecialChars(excludeSpecialChars);
+        password.setRandomPassword("qwerty123");
+        password.setExcludeNumbers(excludeNumbers);
+        password.setUsers(users);
+        when(passwordRepository.save(any(Password.class))).thenReturn(password);
+        doNothing().when(cache).put(anyString(), any(Password.class));
+
+        PasswordResponse result = passwordService.createPass(length, excludeNumbers, excludeSpecialChars);
+
+        assertNotNull(result);
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
     }
-    */
 
-    /*@Test
+
+    @Test
+    void testUpdatePassword_FromCache(){
+        Long id = 1L;
+        Password password = new Password();
+        password.setId(id);
+        password.setLength(7);
+        password.setExcludeNumbers(false);
+        password.setExcludeSpecialChars(true);
+        password.setRandomPassword("qwerty123");
+        Set<User> users = new HashSet<>();
+        users.add(new User());
+        password.setUsers(users);
+
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(password);
+
+        when(passwordService.generatePass(7, false, true))
+                .thenReturn("qwerty123");
+
+        when(passwordRepository.save(password)).thenReturn(password);
+        doNothing().when(cache).put(anyString(), any(Password.class));
+
+        PasswordResponse result = passwordService.updatePassword(id,
+                new PasswordRequest(20, true, true));
+
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
+    }
+
+    @Test
     void testUpdatePassword(){
+        Long id = 1L;
+        Password password = new Password();
+        password.setId(id);
+        password.setLength(9);
+        password.setExcludeNumbers(false);
+        password.setExcludeSpecialChars(true);
+        password.setRandomPassword("qwert123");
+        Set<User> users = new HashSet<>();
+        users.add(new User());
+        password.setUsers(users);
 
-    }*/
+        PasswordRequest passwordRequest = new PasswordRequest(9, false, true);
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
+
+        when(passwordRepository.findById(id)).thenReturn(Optional.of(password));
+
+        when(passwordRepository.save(password)).thenReturn(password);
+
+        doNothing().when(cache).put(anyString(), any(Password.class));
+
+        PasswordResponse result = passwordService.updatePassword(id, passwordRequest);
+
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(password.getRandomPassword(), result.getRandomPassword());
+    }
+
+    @Test
+    void updatePassword_PasswordNotFound() {
+        Long id = 1L;
+        PasswordRequest passwordRequest = new PasswordRequest(10, true, true);
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
+        when(passwordRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> passwordService.updatePassword(id, passwordRequest));
+    }
+
+    @Test
+    void testDeletePassword_FromCache() {
+        Long id = 1L;
+        Password password = new Password();
+        password.setId(id);
+        password.setLength(20);
+        password.setExcludeNumbers(true);
+        password.setExcludeSpecialChars(true);
+        password.setRandomPassword("yVjcTRjXnPfpiRuHTZeT");
+        Set<User> users = new HashSet<>();
+        users.add(new User());
+        password.setUsers(users);
+
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(password);
+        List<User> users1 = new ArrayList<>();
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("user1");
+        user1.setPassword(password);
+        Set<Website> websites1 = new HashSet<>();
+        websites1.add(new Website());
+        user1.setWebsite(websites1);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setUsername("user1");
+        user2.setPassword(password);
+        Set<Website> websites2 = new HashSet<>();
+        websites2.add(new Website());
+        user2.setWebsite(websites2);
+
+        users1.add(user1);
+        users1.add(user2);
+
+        when(userRepository.findAll()).thenReturn(users1);
+
+        when(userRepository.save(user1)).thenReturn(user1);
+        when(userRepository.save(user2)).thenReturn(user2);
+
+        doNothing().when(cache).remove(anyString());
+
+        doNothing().when(passwordRepository).delete(password);
+
+        passwordService.deletePassword(id);
+
+        for(User user : users1){
+            assertNull(user.getPassword());
+            verify(cache, times(2))
+                    .remove(UserServiceImpl.USER_KEY + user.getId());
+        }
+        verify(cache, times(1)).remove(PASSWORD_KEY + id);
+        verify(passwordRepository, times(1)).delete(password);
+    }
 
     @Test
     void testDeletePassword() {
@@ -139,12 +322,57 @@ public class PasswordServiceTest {
         users.add(new User());
         password.setUsers(users);
 
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
         when(passwordRepository.findById(id)).thenReturn(Optional.of(password));
+
+        List<User> users1 = new ArrayList<>();
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("user1");
+        user1.setPassword(password);
+        Set<Website> websites1 = new HashSet<>();
+        websites1.add(new Website());
+        user1.setWebsite(websites1);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setUsername("user1");
+        user2.setPassword(password);
+        Set<Website> websites2 = new HashSet<>();
+        websites2.add(new Website());
+        user2.setWebsite(websites2);
+
+        users1.add(user1);
+        users1.add(user2);
+
+        when(userRepository.findAll()).thenReturn(users1);
+
+        when(userRepository.save(user1)).thenReturn(user1);
+        when(userRepository.save(user2)).thenReturn(user2);
+
+        doNothing().when(cache).remove(anyString());
+
+        doNothing().when(passwordRepository).delete(password);
 
         passwordService.deletePassword(id);
 
-        verify(passwordRepository, times(1)).findById(id);
+        for(User user : users1){
+            assertNull(user.getPassword());
+            verify(cache, times(2))
+                    .remove(UserServiceImpl.USER_KEY + user.getId());
+        }
+        verify(cache, times(1)).remove(PASSWORD_KEY + id);
         verify(passwordRepository, times(1)).delete(password);
     }
-}
 
+    @Test
+    void deletePassword_PasswordNotFound() {
+        Long id = 1L;
+        when(cache.get(PASSWORD_KEY + id)).thenReturn(null);
+        when(passwordRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> passwordService.deletePassword(id));
+    }
+
+
+}

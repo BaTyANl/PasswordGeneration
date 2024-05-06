@@ -2,7 +2,6 @@ package com.example.passwordgeneration.service.impl;
 
 import com.example.passwordgeneration.cache.InMemoryCache;
 import com.example.passwordgeneration.dto.request.UserRequest;
-import com.example.passwordgeneration.dto.response.PasswordResponse;
 import com.example.passwordgeneration.dto.response.UserResponse;
 import com.example.passwordgeneration.model.Password;
 import com.example.passwordgeneration.model.User;
@@ -46,7 +45,7 @@ public class UserServiceImpl implements UserService {
                     ? user.getPassword().getRandomPassword() : NO_PASSWORD)).toList();
   }
 
-  User getFromRepo(Long id) {
+  public User getFromRepo(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
       existUser = userRepository.findById(id).orElseThrow(
@@ -90,17 +89,17 @@ public class UserServiceImpl implements UserService {
       throw new ConcurrentModificationException(
               "This user already exists: " + userRequest.getUsername());
     }
-    PasswordResponse passwordResponse = passwordService
+    String passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
                           userRequest.isExcludeNumbers(),
                           userRequest.isExcludeSpecialChars());
     Password password = passwordRepository
-            .findByRandomPassword(passwordResponse.getRandomPassword());
+            .findByRandomPassword(passwordResponse);
     if (password == null) {
       password = new Password(userRequest.getLength(),
                               userRequest.isExcludeNumbers(),
                               userRequest.isExcludeSpecialChars(),
-                              passwordResponse.getRandomPassword());
+                              passwordResponse);
       passwordRepository.save(password);
       cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
     }
@@ -133,7 +132,7 @@ public class UserServiceImpl implements UserService {
       throw new ConcurrentModificationException(
               "This user already exists: " + userRequest.getUsername());
     }
-    PasswordResponse passwordResponse = passwordService
+    String passwordResponse = passwordService
             .generatePass(userRequest.getLength(),
                           userRequest.isExcludeNumbers(),
                           userRequest.isExcludeSpecialChars());
@@ -143,11 +142,11 @@ public class UserServiceImpl implements UserService {
       password = new Password(userRequest.getLength(),
                               userRequest.isExcludeNumbers(),
                               userRequest.isExcludeSpecialChars(),
-                              passwordResponse.getRandomPassword());
+                              passwordResponse);
       passwordRepository.save(password);
       cache.put(PasswordServiceImpl.PASSWORD_KEY + password.getId(), password);
     } else {
-      password.setRandomPassword(passwordResponse.getRandomPassword());
+      password.setRandomPassword(passwordResponse);
     }
     existUser.setUsername(userRequest.getUsername());
     existUser.setPassword(password);

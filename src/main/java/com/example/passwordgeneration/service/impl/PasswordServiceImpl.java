@@ -52,7 +52,7 @@ public class PasswordServiceImpl implements PasswordService {
 
   @SneakyThrows
   @Override
-  public PasswordResponse generatePass(int length, boolean excludeNumbers,
+  public String generatePass(int length, boolean excludeNumbers,
                                        boolean excludeSpecialChars) {
     Properties properties = new Properties();
     FileInputStream fileInputStream = new
@@ -63,16 +63,17 @@ public class PasswordServiceImpl implements PasswordService {
             + "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars
             + "&X-Api-Key=" + apiKey;
     String jsonStr = restTemplate.getForObject(url, String.class);
+    if(jsonStr == null) return "qwerty123";
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode root = objectMapper.readTree(jsonStr);
-    return new PasswordResponse(null, root.path("random_password").asText());
+    return root.path("random_password").asText();
   }
 
   @Override
   public PasswordResponse createPass(int length,
                                      boolean excludeNumbers, boolean excludeSpecialChars) {
     Password password = new Password(length, excludeNumbers, excludeSpecialChars,
-              generatePass(length, excludeNumbers, excludeSpecialChars).getRandomPassword());
+              generatePass(length, excludeNumbers, excludeSpecialChars));
     Password existPassword = repository.findByRandomPassword(password.getRandomPassword());
     if (existPassword == null) {
       repository.save(password);
@@ -94,7 +95,7 @@ public class PasswordServiceImpl implements PasswordService {
     existPassword.setExcludeSpecialChars(passwordRequest.isExcludeSpecialChars());
     existPassword.setRandomPassword(generatePass(
         passwordRequest.getLength(), passwordRequest.isExcludeNumbers(),
-        passwordRequest.isExcludeSpecialChars()).getRandomPassword());
+        passwordRequest.isExcludeSpecialChars()));
     repository.save(existPassword);
     cache.put(PASSWORD_KEY + existPassword.getId(), existPassword);
     return new PasswordResponse(id, existPassword.getRandomPassword());
@@ -115,6 +116,6 @@ public class PasswordServiceImpl implements PasswordService {
       }
     }
     cache.remove(PASSWORD_KEY + existPassword.getId());
-    repository.delete(existPassword);
+       repository.delete(existPassword);
   }
 }
