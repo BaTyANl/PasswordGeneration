@@ -55,10 +55,14 @@ public class PasswordServiceImpl implements PasswordService {
   public String generatePass(int length, boolean excludeNumbers,
                                        boolean excludeSpecialChars) {
     Properties properties = new Properties();
-    FileInputStream fileInputStream = new FileInputStream("apikey.properties");
-    properties.load(fileInputStream);
-    String apiKey = properties.getProperty("apiKey");
-    fileInputStream.close();
+    String apiKey;
+    try(FileInputStream fileInputStream = new FileInputStream("apikey.properties")) {
+      properties.load(fileInputStream);
+      apiKey = properties.getProperty("apiKey");
+    } catch (Exception e){
+      throw new RuntimeException("File opening error");
+    }
+
     String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length
             + "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars
             + "&X-Api-Key=" + apiKey;
