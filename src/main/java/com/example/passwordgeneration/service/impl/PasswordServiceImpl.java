@@ -11,6 +11,7 @@ import com.example.passwordgeneration.service.PasswordService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileInputStream;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -60,7 +61,7 @@ public class PasswordServiceImpl implements PasswordService {
       properties.load(fileInputStream);
       apiKey = properties.getProperty("apiKey");
     } catch (Exception e){
-      throw new RuntimeException("File opening error");
+      throw new ConcurrentModificationException("File opening error");
     }
 
     String url = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + length
