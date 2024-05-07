@@ -57,10 +57,10 @@ public class PasswordServiceImpl implements PasswordService {
                                        boolean excludeSpecialChars) {
     Properties properties = new Properties();
     String apiKey;
-    try(FileInputStream fileInputStream = new FileInputStream("apikey.properties")) {
+    try (FileInputStream fileInputStream = new FileInputStream("apikey.properties")) {
       properties.load(fileInputStream);
       apiKey = properties.getProperty("apiKey");
-    } catch (Exception e){
+    } catch (Exception e) {
       throw new ConcurrentModificationException("File opening error");
     }
 
@@ -68,7 +68,9 @@ public class PasswordServiceImpl implements PasswordService {
             + "&exclude_numbers=" + excludeNumbers + "&exclude_special_chars=" + excludeSpecialChars
             + "&X-Api-Key=" + apiKey;
     String jsonStr = restTemplate.getForObject(url, String.class);
-    if(jsonStr == null) return "qwerty123";
+    if (jsonStr == null) {
+      return "qwerty123";
+    }
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode root = objectMapper.readTree(jsonStr);
     return root.path("random_password").asText();
@@ -121,6 +123,6 @@ public class PasswordServiceImpl implements PasswordService {
       }
     }
     cache.remove(PASSWORD_KEY + existPassword.getId());
-       repository.delete(existPassword);
+    repository.delete(existPassword);
   }
 }

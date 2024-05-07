@@ -373,6 +373,4 @@ public class PasswordServiceTest {
 
         assertThrows(NoSuchElementException.class, () -> passwordService.deletePassword(id));
     }
-
-
 }

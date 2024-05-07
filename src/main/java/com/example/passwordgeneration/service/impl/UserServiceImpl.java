@@ -45,6 +45,10 @@ public class UserServiceImpl implements UserService {
                     ? user.getPassword().getRandomPassword() : NO_PASSWORD)).toList();
   }
 
+  /**
+   * Getting user from repo.
+   */
+
   public User getFromRepo(Long id) {
     User existUser = (User) cache.get(USER_KEY + id);
     if (existUser == null) {
