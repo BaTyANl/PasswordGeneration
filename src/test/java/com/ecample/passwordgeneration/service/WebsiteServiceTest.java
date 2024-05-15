@@ -367,7 +367,6 @@ public class WebsiteServiceTest {
 
         verify(cache).get(WEBSITE_KEY + 1L);
         verify(websiteRepository).findById(1L);
-        //verifyNoInteractions(websiteRepository, cache);
     }
 
     @Test
@@ -394,6 +393,5 @@ public class WebsiteServiceTest {
 
         verify(cache).get(WEBSITE_KEY + 1L);
         verify(websiteRepository).findById(1L);
-        //verifyNoInteractions(websiteRepository, cache);
     }
 }
